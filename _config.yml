@@ -15,9 +15,9 @@
 ##############################
 text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: "default" # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
-url: https://www.desgard.com # the base hostname & protocol for your site e.g. https://www.someone.com
+url: https://kongxincai.net # the base hostname & protocol for your site e.g. https://www.someone.com
 baseurl: "" # does not include hostname
-title: 一片瓜田
+title: 空心菜
 description: > # this means to ignore newlines until "Language & timezone"
   I write more code to write less.
 
@@ -30,21 +30,21 @@ timezone: "UTC+8" # see https://en.wikipedia.org/wiki/List_of_tz_database_time_z
 ##############################
 author:
   type: "person" # "person" (default), "organization"
-  name: "冬瓜"
-  url: "https://www.desgard.com"
+  name: "空心菜"
+  url: "https://kongxincai.net"
   avatar: "https://avatars2.githubusercontent.com/u/7804535?s=460&u=40e717623cb27fb1cd7f0ed22075f1cfcad51729&v=4"
   bio: "I write more code to write less."
-  email: "gua@desgard.com"
-  facebook: "desgard.duan"
-  twitter: "Desgard_Duan"
-  weibo: "desgard"
+  email: "mail.kongxincai@gmail.com"
+  # facebook: "desgard.duan"
+  # twitter: "Desgard_Duan"
+  # weibo: "desgard"
   googleplus: # "user_id"   the last part of your profile url, e.g. https://plus.google.com/u/0/user_id
   telegram: # "user_name" the last part of your profile url, e.g. https://t.me/user_name
   medium: # "user_name" the last part of your profile url, e.g. https://medium.com/user_name
-  zhihu: "devgua" # "user_name" the last part of your profile url, e.g. https://www.zhihu.com/people/user_name
+  # zhihu: "devgua" # "user_name" the last part of your profile url, e.g. https://www.zhihu.com/people/user_name
   douban: # "user_name" the last part of your profile url, e.g. https://www.douban.com/people/user_name
   linkedin: # "user_name" the last part of your profile url, e.g. https://www.linkedin.com/in/user_name
-  github: "Desgard"
+  # github: "Desgard"
   npm: # "user_name" the last part of your profile url, e.g. https://www.npmjs.com/~user_name
 
 ## => GitHub Repository (if the site is hosted by GitHub)
@@ -194,9 +194,9 @@ defaults:
       license: true
       aside:
         toc: true
-      show_edit_on_github: true
+      show_edit_on_github: false
       show_subscribe: false
-      show_qrcode: true
+      show_qrcode: false
       pageview: true
 
 ## => Plugins
