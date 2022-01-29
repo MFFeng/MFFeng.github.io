@@ -4,7 +4,7 @@ require "tmpdir"
 require "bundler/setup"
 require "jekyll"
 
-GITHUB_REPONAME = "Desgard/desgard.github.com"
+GITHUB_REPONAME = "MFFeng/MFFeng.github.io"
 GITHUB_REPO_BRANCH = "master"
 
 SOURCE = "source/"
@@ -38,7 +38,7 @@ task :publish => [:generate] do
     system "git init"
     system "git checkout --orphan #{GITHUB_REPO_BRANCH}"
     system "git add ."
-    system "git config user.email 'gua@desgard.com'"
+    system "git config user.email 'mail.kongxincai@gmail.com'"
     message = "Site updated at #{Time.now.utc}"
     system "git commit -am #{message.inspect}"
     system "git remote add origin git@github.com:#{GITHUB_REPONAME}.git"
