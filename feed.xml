@@ -1,0 +1,1685 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh_CN"><generator uri="https://jekyllrb.com/" version="4.2.1">Jekyll</generator><link href="https://kongxincai.net/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kongxincai.net/" rel="alternate" type="text/html" hreflang="zh_CN" /><updated>2022-02-10T01:36:54-08:00</updated><id>https://kongxincai.net/feed.xml</id><title type="html">空心菜</title><subtitle>I write more code to write less.
+</subtitle><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><entry><title type="html">完全理解以太坊智能合约</title><link href="https://kongxincai.net/2022/02/10/smart-contract-eth.html" rel="alternate" type="text/html" title="完全理解以太坊智能合约" /><published>2022-02-10T00:00:00-08:00</published><updated>2022-02-10T00:00:00-08:00</updated><id>https://kongxincai.net/2022/02/10/smart-contract-eth</id><content type="html" xml:base="https://kongxincai.net/2022/02/10/smart-contract-eth.html"><![CDATA[<blockquote>
+  <p><a href="https://learnblockchain.cn/2018/01/04/understanding-smart-contracts">转载自登链社区</a></p>
+</blockquote>
+
+<h2 id="快速了解区块链">快速了解区块链</h2>
+
+<p>如果我们不关注细节的话，区块链技术的核心概念是<em>分布式账本</em>。它是许多参与者共享的特定类型的数据库。</p>
+
+<p>这个特殊的数据库只是一个交易列表，记录着网络中发生的每笔交易。每个人都可以拥有自己的交易列表备份，再加上强有力的货币激励措施消除各方之间信任成本。</p>
+
+<p>传统交易通常引入第三方(双方信任的中间人)来解决相互不信任的人进行的交易，如支付宝、Paypal、银行。</p>
+
+<p>使用区块链，可以把信任放在一个网络中，不在需要第三方，它通过强有力的激励去规避作弊行文。</p>
+
+<p><img src="https://markdown-written.oss-cn-hangzhou.aliyuncs.com/markdown/20220210155700.png" alt="" /></p>
+
+<p>更具体一点：区块链网络是一堆机器，它们都具有相同的交易列表，由于每个人都有相同的列表，因此很难欺骗网络接受虚假交易。通过与一些加密算法和货币激励相结合，只要大家都遵循规则就可以构建一个安全的区块链网络。</p>
+
+<p>通过这种方式也使得区块链几乎无法篡改，改变历史记录的唯一方法是让大多数节点(矿工)同意这样做。</p>
+
+<h2 id="什么事智能合约">什么事智能合约</h2>
+
+<p>以太坊与比特币很大的不同是以太坊拥有智能合约的概念，比特币是数字货币-价值存储。而以太坊不单单是数字货币，<em>智能合约</em> 这个名称有点误导，它不是真正的合约，也不是特别智能，他们只是可以在区块链上运行的代码。</p>
+
+<p>首先要了解的是<strong>智能合约</strong>是以太坊网络上的一种<strong>特殊账户</strong>，我们有<strong>用户账户</strong>，还可以拥有<strong>智能合约账户</strong>。</p>
+
+<p><strong>用户账户：</strong></p>
+
+<ul>
+  <li>地址<em>（有点像银行账户，比特币也有同样的概念）</em></li>
+  <li>余额<em>（我有多少钱 - 以太）</em></li>
+</ul>
+
+<p><strong>智能合约账户：</strong></p>
+
+<ul>
+  <li>地址</li>
+  <li>余额<em>（有多少钱 - 以太）</em></li>
+  <li>状态</li>
+  <li>代码</li>
+</ul>
+
+<p><strong>地址：</strong>是账户的唯一标识符，与常规用户账户一样；</p>
+
+<p><strong>余额：</strong>也与常规用户账户相同，不同的是，智能合约的余额意味着代码可以拥有资产，它可以管理资产，<em>因此如果代码不正确，它可能会错误处理这边资金。</em></p>
+
+<p><strong>状态：</strong>智能合约账户的<strong>状态</strong>是智能合约中声明的所有变量和变量的当前状态，它的工作方式与大多数编程语言中的类中的变量相同。实际上，最简单方法去理解智能合约可以类比为一个类实例化对象，唯一的区别是这个对象永远存在区块链网络中(除非程序进行自毁)。</p>
+
+<p><strong>代码：</strong>智能合约的<strong>代码</strong>是编译后可以在以太坊客户端和节点可以运行的字节码，它是在创建智能合约时执行的代码，它包含我们可以调用的函数，就像面向对象编程语言中的对象一样。</p>
+
+<blockquote>
+  <p>注：智能合约更有趣地方，他们可以调用其他智能合约，这开启了创造一个自主代理的能力，这些代理可以自己进行交易。</p>
+</blockquote>
+
+<div class="language-solidity highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">contract</span> <span class="n">Counter</span> <span class="p">{</span>
+    <span class="kt">uint</span> <span class="n">counter</span><span class="p">;</span>
+
+    <span class="k">function</span> <span class="n">Counter</span><span class="p">()</span> <span class="k">public</span> <span class="p">{</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">function</span> <span class="n">count</span><span class="p">()</span> <span class="k">public</span> <span class="p">{</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>假设我们使用上面的代码创建一个智能合约，代码有一个类型为 unit（无符合整数）名为<code class="language-plaintext highlighter-rouge">counter</code> 的变量。<code class="language-plaintext highlighter-rouge">counter</code> 变量的内容（值）就是该合约的状态，每当我们调用 <code class="language-plaintext highlighter-rouge">count()</code>函数时，此智能合约的区块链状态将增加1，这个状态是对任何人都可见的。</p>
+
+<p><img src="https://markdown-written.oss-cn-hangzhou.aliyuncs.com/markdown/20220210162500.png" alt="" /></p>
+
+<h2 id="以太坊和比特币在交易层面的区别">以太坊和比特币在交易层面的区别</h2>
+
+<p>比特币交易非常简单，它只做一件事，就是进行交易。忽略细节，这一切都归结为TO（谁收钱），FROM（谁汇款）和AMOUNT（多少钱）。这让比特币网络中的参与者可以传递价值并存储价值。</p>
+
+<p>以太坊很大的不同是其交易还有一个<code class="language-plaintext highlighter-rouge">DATA</code> 字段。DATA 字段支持三种类型的交易：</p>
+
+<ol>
+  <li>
+    <p>价值传递(和比特币相同)</p>
+
+    <p>TO：收款地址</p>
+
+    <p>DATA：留空或留言信息</p>
+
+    <p>FROM：谁发出</p>
+
+    <p>AMOUNT：发送多少</p>
+  </li>
+  <li>
+    <p>创建合约</p>
+
+    <p>TO：留空(这就是触发创建智能合约的原因)</p>
+
+    <p>DATA：包含编译为字节码的智能合约代码</p>
+
+    <p>FROM：谁创建</p>
+
+    <p>AMOUNT：可以是零或任何数量的以太，它是我们想要给合约的存款</p>
+  </li>
+  <li>
+    <p>调用合约函数</p>
+
+    <p>TO：目标合约账户地址</p>
+
+    <p>DATA：包含函数名称和参数 - 标识如何调用智能合约函数</p>
+
+    <p>FROM：谁调用</p>
+
+    <p>AMOUNT：可以是零或任意数量的以太，例如可以支付合约服务费用</p>
+  </li>
+</ol>
+
+<h2 id="以太坊交易">以太坊交易</h2>
+
+<h3 id="价值传递">价值传递</h3>
+
+<pre><code class="language-so">{
+    to: '0x687422eEA2cB73B5d3e242bA5456b782919AFc85',
+    value: 0.0005
+    data: ‘0x’ // 也可以附加消息
+}
+</code></pre>
+
+<p>非常简单，就是转移一定数量的以太坊到某个地址，如果我们愿意也可以向交易添加信息。</p>
+
+<h3 id="创建智能合约">创建智能合约</h3>
+
+<pre><code class="language-sol">{
+    to: '',
+    value: 0.0
+    data: '0x6060604052341561000c57xlb60405160c0806……………'
+}
+</code></pre>
+
+<p>如上所述，TO为空表示创建智能合约，DATA 包含编译为字节码的智能合约代码。</p>
+
+<h3 id="调用合约方法">调用合约方法</h3>
+
+<pre><code class="language-so">{
+    to: '0x687422eEA2cB73B5d3e242bA5456b782919AFc85’, //合约
+    value: 0.0
+    data: '0x6060604052341561000c57fe5b60405160c0806……………'
+}
+</code></pre>
+
+<p>函数调用信息放在DATA变量中，把这个交易信息发送到要调用的智能合约的地址。</p>
+
+<h2 id="关于成本和执行">关于成本和执行</h2>
+
+<p>可以想象，我们不能一直在区块链上免费运行计算量很大的程序。</p>
+
+<p>代码的执行由调用者以称为Gas的方式支付费用。Gas是运行以太坊虚拟机的燃料。我们可以将其市委每次执行指令的付款。</p>
+
+<p>在发起调用时，我们必须设置此调用上预计花费的最大Gas消耗量(<code class="language-plaintext highlighter-rouge">Gas Limit</code>)。例如，如果我们调用的代码进入永久循环，执行花费不会超过我们设定的最大消耗量（Gas Limit）。</p>
+
+<p>Gas执行费用由网络的矿工(他们是运行代码的节点)决定的。</p>
+
+<blockquote>
+  <p>Gas 参考文章：
+<a href="https://media.consensys.net/ethereum-gas-fuel-and-fees-3333e17fe1dc">以太坊，Gas，燃料和费用</a></p>
+</blockquote>
+
+<h2 id="智能合约是如何运行的">智能合约是如何运行的</h2>
+
+<p>当智能合约部署到以太坊网络时，任何人都可以调用智能合约的功能（<em>当然也可能存在某些安全原因阻止人们使用的功能，但不妨碍我们自由尝试</em>）。</p>
+
+<p>在智能合约上调用函数在很多方面和<em>正常</em>编程类似 - 当然在执行方面存在一些差异。</p>
+
+<p>假设我们有一个 “MyObject” 类型的对象，该对象有一个名为 “myFunction” 的函数。要调用它，我们可以简单地引用对象的实例，调用哪个函数以及调用它的参数。例如：</p>
+
+<pre><code class="language-sol">myObjectReference.myFunction(parameters);
+</code></pre>
+
+<p>如果函数返回任何值，则可以把它保存在变量中：</p>
+
+<pre><code class="language-sol">myVariable = myObject.myFunction(parameters);
+</code></pre>
+
+<p>从概念上讲，调用智能合约也是这样一回事。唯一的区别是我们必须将有关调用的信息放入交易中，对其进行签名并发送到以太坊网络中执行。</p>
+
+<p>假设想用一些参数调用智能合约 “0x0123456” 上函数 “myFunction”，大概包含以下4个步骤：</p>
+
+<p><img src="https://markdown-written.oss-cn-hangzhou.aliyuncs.com/markdown/20220210170009.png" alt="" /></p>
+
+<p>现在，当交易被打包放入区块链时，状态的改变将反映在整个网络中。</p>
+
+<h2 id="世界计算机">世界计算机</h2>
+
+<p>许多人称以太坊为世界计算机，这不算一个糟糕的比喻，它确实像一个由全世界维护的虚拟机。</p>
+
+<p>有一点要注意：虽然智能合约是图灵完整的，理论上可以做任何事情，但他们并不合适繁重的计算工作。</p>
+
+<p>以太坊世界计算机就像一台老旧的慢速计算机，可以运行简单的程序，基于成本和安全性考虑，保持以太坊智能合约小而简单至关重要。</p>
+
+<p>合约的计算越多，运行它的成本就越高。合约越复杂，就越有可能出现安全漏洞。智能合约中的安全漏洞是很难修复的，因为区块链的不可篡改特性。</p>
+
+<p><img src="https://markdown-written.oss-cn-hangzhou.aliyuncs.com/markdown/20220210170711.png" alt="" /></p>
+
+<h2 id="智能合约应用token通证或代币">智能合约应用：Token(通证或代币)</h2>
+
+<p>解释一下通证是如何工作的，哪些在ICO中每个人都赞不绝口的代币，就是一个智能合约，我们自己也可以在以太坊上创建自己的代币。</p>
+
+<p>大多数这些代币都是在以太坊上创建的，这个概念非常简单，我们需要关注以下几个信息：</p>
+
+<ul>
+  <li>总供应量</li>
+  <li>账号</li>
+  <li>账户中的金额</li>
+  <li>代币的流动</li>
+</ul>
+
+<p>通过用户和金额之间的简单映射，可以实现1、2和3：</p>
+
+<div class="language-solidity highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Map</span><span class="o">&lt;</span><span class="n">Account</span><span class="p">,</span> <span class="n">Double</span><span class="o">&gt;</span> <span class="n">usersAndTheirMoney</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>使用构造函数，我们可以在自己的账户中设置初始供应量(或在任意其他中帐户中分配)：</p>
+
+<div class="language-solidity highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">public</span> <span class="n">Token</span><span class="p">(</span><span class="n">Account</span> <span class="n">initialAccount</span><span class="p">,</span> <span class="n">double</span> <span class="n">initialSupply</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">usersAndTheirMoney</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">initialAccount</span><span class="p">,</span> <span class="n">initialSupply</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>代币的移动是通过简单的功能完成的，只需从一个账户中减去并添加到另一个账户：</p>
+
+<div class="language-solidity highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">public</span> <span class="nb">transfer</span><span class="p">(</span><span class="n">Account</span> <span class="n">from</span><span class="p">,</span> <span class="n">Account</span> <span class="n">to</span><span class="p">,</span> <span class="n">double</span> <span class="n">amount</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">verifySenderOfMoneyIsCaller</span><span class="p">(</span><span class="n">from</span><span class="p">);</span>
+  <span class="n">verifySenderOfMoneyHasEnoughMoney</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="n">amount</span><span class="p">);</span>
+  <span class="n">usersAndTheirMoney</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="n">usersAndTheirMoney</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">from</span><span class="p">)</span><span class="o">-</span><span class="n">amount</span><span class="p">);</span>
+  <span class="n">usersAndTheirMoney</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">usersAndTheirMoney</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">to</span><span class="p">)</span><span class="o">+</span><span class="n">amount</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>这与我们在以太坊中用于创建通证的完全相同的概念。不过以太坊有自己的编程语言 <code class="language-plaintext highlighter-rouge">Solidity</code> ，使用 <code class="language-plaintext highlighter-rouge">Solidity</code> 编写代码大概这个样子：</p>
+
+<div class="language-solidity highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">contract</span> <span class="n">MyToken</span> <span class="p">{</span>
+    <span class="k">mapping</span> <span class="p">(</span><span class="kt">address</span> <span class="o">=&gt;</span> <span class="kt">uint256</span><span class="p">)</span> <span class="k">public</span> <span class="n">balances</span><span class="p">;</span>
+    <span class="k">function</span> <span class="n">MyToken</span><span class="p">(</span><span class="kt">uint256</span> <span class="n">initialSupply</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">balances</span><span class="p">[</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">=</span> <span class="n">initialSupply</span><span class="p">;</span>
+    <span class="p">}</span>   
+   
+    <span class="k">function</span> <span class="nb">transfer</span><span class="p">(</span><span class="kt">address</span> <span class="n">to</span><span class="p">,</span> <span class="kt">uint256</span> <span class="n">amount</span><span class="p">)</span> <span class="k">public</span> <span class="p">{</span>
+        <span class="n">balances</span><span class="p">[</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">-=</span> <span class="n">amount</span><span class="p">;</span>
+        <span class="n">balances</span><span class="p">[</span><span class="n">to</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amount</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p><a href="http://www.gjermundbjaanes.com/understanding-ethereum-smart-contracts">本文英文地址</a></p>
+</blockquote>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="SmartContract" /><category term="Blockchain" /><summary type="html"><![CDATA[转载自登链社区 快速了解区块链 如果我们不关注细节的话，区块链技术的核心概念是分布式账本。它是许多参与者共享的特定类型的数据库。 这个特殊的数据库只是一个交易列表，记录着网络中发生的每笔交易。每个人都可以拥有自己的交易列表备份，再加上强有力的货币激励措施消除各方之间信任成本。 传统交易通常引入第三方(双方信任的中间人)来解决相互不信任的人进行的交易，如支付宝、Paypal、银行。 使用区块链，可以把信任放在一个网络中，不在需要第三方，它通过强有力的激励去规避作弊行文。 更具体一点：区块链网络是一堆机器，它们都具有相同的交易列表，由于每个人都有相同的列表，因此很难欺骗网络接受虚假交易。通过与一些加密算法和货币激励相结合，只要大家都遵循规则就可以构建一个安全的区块链网络。 通过这种方式也使得区块链几乎无法篡改，改变历史记录的唯一方法是让大多数节点(矿工)同意这样做。 什么事智能合约 以太坊与比特币很大的不同是以太坊拥有智能合约的概念，比特币是数字货币-价值存储。而以太坊不单单是数字货币，智能合约 这个名称有点误导，它不是真正的合约，也不是特别智能，他们只是可以在区块链上运行的代码。 首先要了解的是智能合约是以太坊网络上的一种特殊账户，我们有用户账户，还可以拥有智能合约账户。 用户账户： 地址（有点像银行账户，比特币也有同样的概念） 余额（我有多少钱 - 以太） 智能合约账户： 地址 余额（有多少钱 - 以太） 状态 代码 地址：是账户的唯一标识符，与常规用户账户一样； 余额：也与常规用户账户相同，不同的是，智能合约的余额意味着代码可以拥有资产，它可以管理资产，因此如果代码不正确，它可能会错误处理这边资金。 状态：智能合约账户的状态是智能合约中声明的所有变量和变量的当前状态，它的工作方式与大多数编程语言中的类中的变量相同。实际上，最简单方法去理解智能合约可以类比为一个类实例化对象，唯一的区别是这个对象永远存在区块链网络中(除非程序进行自毁)。 代码：智能合约的代码是编译后可以在以太坊客户端和节点可以运行的字节码，它是在创建智能合约时执行的代码，它包含我们可以调用的函数，就像面向对象编程语言中的对象一样。 注：智能合约更有趣地方，他们可以调用其他智能合约，这开启了创造一个自主代理的能力，这些代理可以自己进行交易。 contract Counter { uint counter; function Counter() public { counter = 0; } function count() public { counter = counter + 1; } } 假设我们使用上面的代码创建一个智能合约，代码有一个类型为 unit（无符合整数）名为counter 的变量。counter 变量的内容（值）就是该合约的状态，每当我们调用 count()函数时，此智能合约的区块链状态将增加1，这个状态是对任何人都可见的。 以太坊和比特币在交易层面的区别 比特币交易非常简单，它只做一件事，就是进行交易。忽略细节，这一切都归结为TO（谁收钱），FROM（谁汇款）和AMOUNT（多少钱）。这让比特币网络中的参与者可以传递价值并存储价值。 以太坊很大的不同是其交易还有一个DATA 字段。DATA 字段支持三种类型的交易： 价值传递(和比特币相同) TO：收款地址 DATA：留空或留言信息 FROM：谁发出 AMOUNT：发送多少 创建合约 TO：留空(这就是触发创建智能合约的原因) DATA：包含编译为字节码的智能合约代码 FROM：谁创建 AMOUNT：可以是零或任何数量的以太，它是我们想要给合约的存款 调用合约函数 TO：目标合约账户地址 DATA：包含函数名称和参数 - 标识如何调用智能合约函数 FROM：谁调用 AMOUNT：可以是零或任意数量的以太，例如可以支付合约服务费用 以太坊交易 价值传递 { to: '0x687422eEA2cB73B5d3e242bA5456b782919AFc85', value: 0.0005 data: ‘0x’ // 也可以附加消息 } 非常简单，就是转移一定数量的以太坊到某个地址，如果我们愿意也可以向交易添加信息。 创建智能合约 { to: '', value: 0.0 data: '0x6060604052341561000c57xlb60405160c0806……………' } 如上所述，TO为空表示创建智能合约，DATA 包含编译为字节码的智能合约代码。 调用合约方法 { to: '0x687422eEA2cB73B5d3e242bA5456b782919AFc85’, //合约 value: 0.0 data: '0x6060604052341561000c57fe5b60405160c0806……………' } 函数调用信息放在DATA变量中，把这个交易信息发送到要调用的智能合约的地址。 关于成本和执行 可以想象，我们不能一直在区块链上免费运行计算量很大的程序。 代码的执行由调用者以称为Gas的方式支付费用。Gas是运行以太坊虚拟机的燃料。我们可以将其市委每次执行指令的付款。 在发起调用时，我们必须设置此调用上预计花费的最大Gas消耗量(Gas Limit)。例如，如果我们调用的代码进入永久循环，执行花费不会超过我们设定的最大消耗量（Gas Limit）。 Gas执行费用由网络的矿工(他们是运行代码的节点)决定的。 Gas 参考文章： 以太坊，Gas，燃料和费用 智能合约是如何运行的 当智能合约部署到以太坊网络时，任何人都可以调用智能合约的功能（当然也可能存在某些安全原因阻止人们使用的功能，但不妨碍我们自由尝试）。 在智能合约上调用函数在很多方面和正常编程类似 - 当然在执行方面存在一些差异。 假设我们有一个 “MyObject” 类型的对象，该对象有一个名为 “myFunction” 的函数。要调用它，我们可以简单地引用对象的实例，调用哪个函数以及调用它的参数。例如： myObjectReference.myFunction(parameters); 如果函数返回任何值，则可以把它保存在变量中： myVariable = myObject.myFunction(parameters); 从概念上讲，调用智能合约也是这样一回事。唯一的区别是我们必须将有关调用的信息放入交易中，对其进行签名并发送到以太坊网络中执行。 假设想用一些参数调用智能合约 “0x0123456” 上函数 “myFunction”，大概包含以下4个步骤： 现在，当交易被打包放入区块链时，状态的改变将反映在整个网络中。 世界计算机 许多人称以太坊为世界计算机，这不算一个糟糕的比喻，它确实像一个由全世界维护的虚拟机。 有一点要注意：虽然智能合约是图灵完整的，理论上可以做任何事情，但他们并不合适繁重的计算工作。 以太坊世界计算机就像一台老旧的慢速计算机，可以运行简单的程序，基于成本和安全性考虑，保持以太坊智能合约小而简单至关重要。 合约的计算越多，运行它的成本就越高。合约越复杂，就越有可能出现安全漏洞。智能合约中的安全漏洞是很难修复的，因为区块链的不可篡改特性。 智能合约应用：Token(通证或代币) 解释一下通证是如何工作的，哪些在ICO中每个人都赞不绝口的代币，就是一个智能合约，我们自己也可以在以太坊上创建自己的代币。 大多数这些代币都是在以太坊上创建的，这个概念非常简单，我们需要关注以下几个信息： 总供应量 账号 账户中的金额 代币的流动 通过用户和金额之间的简单映射，可以实现1、2和3： Map&lt;Account, Double&gt; usersAndTheirMoney; 使用构造函数，我们可以在自己的账户中设置初始供应量(或在任意其他中帐户中分配)： public Token(Account initialAccount, double initialSupply) { usersAndTheirMoney.put(initialAccount, initialSupply); } 代币的移动是通过简单的功能完成的，只需从一个账户中减去并添加到另一个账户： public transfer(Account from, Account to, double amount) { verifySenderOfMoneyIsCaller(from); verifySenderOfMoneyHasEnoughMoney(from, amount); usersAndTheirMoney.put(from, usersAndTheirMoney.get(from)-amount); usersAndTheirMoney.put(to, usersAndTheirMoney.get(to)+amount); } 这与我们在以太坊中用于创建通证的完全相同的概念。不过以太坊有自己的编程语言 Solidity ，使用 Solidity 编写代码大概这个样子： contract MyToken { mapping (address =&gt; uint256) public balances; function MyToken(uint256 initialSupply) { balances[msg.sender] = initialSupply; } function transfer(address to, uint256 amount) public { balances[msg.sender] -= amount; balances[to] += amount; } } 本文英文地址]]></summary></entry><entry><title type="html">数据库事务管理简介</title><link href="https://kongxincai.net/2022/02/09/database-transaction.html" rel="alternate" type="text/html" title="数据库事务管理简介" /><published>2022-02-09T00:00:00-08:00</published><updated>2022-02-09T00:00:00-08:00</updated><id>https://kongxincai.net/2022/02/09/database-transaction</id><content type="html" xml:base="https://kongxincai.net/2022/02/09/database-transaction.html"><![CDATA[<h1 id="事务管理简介">事务管理简介</h1>
+
+<p>事务(<code class="language-plaintext highlighter-rouge">Transaction</code> ) 通俗的讲就是一件事件，要么做完，要么不做，不要做一半留一半。也就是说，事务必须是一个不可分割的整体。</p>
+
+<h2 id="1-事务特性">1. 事务特性</h2>
+
+<h3 id="11-原子性atomicity">1.1 原子性(<code class="language-plaintext highlighter-rouge">Atomicity</code>)</h3>
+
+<p>事务必须是一个不可分割的整体，要么全部执行，要么不执行。</p>
+
+<h3 id="12-一致性consistency">1.2. 一致性(<code class="language-plaintext highlighter-rouge">Consistency</code>)</h3>
+
+<p>事务开始前和结束后，数据库的完整性约束没有被破坏 。比如 A 向 B 转账，不可能 A 扣了钱，B 却没收到。</p>
+
+<h3 id="13-隔离性isolation">1.3. 隔离性(<code class="language-plaintext highlighter-rouge">Isolation</code>)</h3>
+
+<p>同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任务干扰。</p>
+
+<h3 id="14-持久性durability">1.4. 持久性(<code class="language-plaintext highlighter-rouge">Durability</code>)</h3>
+
+<p>事务完成后，事务对数据库的所有更改将被保存到数据库中。</p>
+
+<h2 id="2-事务隔离级别">2. 事务隔离级别</h2>
+
+<p>数据库定义了4个隔离的级别：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">READ_UNCOMMITTED</code> 读未提交</li>
+  <li><code class="language-plaintext highlighter-rouge">READ_COMMITTED</code> 读提交</li>
+  <li><code class="language-plaintext highlighter-rouge">REPEATABLE_READ</code> 重复读</li>
+  <li><code class="language-plaintext highlighter-rouge">SERIALIZABLE</code> 序列化</li>
+</ul>
+
+<p>从上往下，级别越来越高，并发性越来越差，一致性越来越高。</p>
+
+<h2 id="3-事务面临的问题">3. 事务面临的问题</h2>
+
+<p>数据库在高并发下会产生下列问题：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Dirty Read</code> 脏读</li>
+  <li><code class="language-plaintext highlighter-rouge">Unrepeatable Read</code> 不可重复读</li>
+  <li><code class="language-plaintext highlighter-rouge">Phantom Read</code> 幻读</li>
+</ul>
+
+<h3 id="31-脏读">3.1 脏读</h3>
+
+<p>脏读可以理解为读到 “垃圾数据”了。比如有2个事务同时对数据库进行操作，会发生竞争，如下表所示：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>时间</th>
+      <th>事务A（存款）</th>
+      <th>事务B（取款）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T1</td>
+      <td>开始事务</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>T2</td>
+      <td>–</td>
+      <td>开始事务</td>
+    </tr>
+    <tr>
+      <td>T3</td>
+      <td>–</td>
+      <td>查询余额（1000元）</td>
+    </tr>
+    <tr>
+      <td>T4</td>
+      <td>–</td>
+      <td>取出1000（余额0元）</td>
+    </tr>
+    <tr>
+      <td>T5</td>
+      <td>查询余额（0元）</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>T6</td>
+      <td>–</td>
+      <td>撤销事务(余额恢复为1000元)</td>
+    </tr>
+    <tr>
+      <td>T7</td>
+      <td>存入500元（余额500元）</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>T8</td>
+      <td>提交事务</td>
+      <td>–</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>余额应该为1500元，但是T5时间点，事务A查询余额为0元，这个数据就是脏数据，它是事务B造成的。所以脏数据是非常要不得的。</p>
+
+<h3 id="32-不可重复读">3.2 不可重复读</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>时间</th>
+      <th>事务A（存款）</th>
+      <th>事务B（取款）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T1</td>
+      <td>开始事务</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>T2</td>
+      <td>–</td>
+      <td>开始事务</td>
+    </tr>
+    <tr>
+      <td>T3</td>
+      <td>–</td>
+      <td>查询余额（1000元）</td>
+    </tr>
+    <tr>
+      <td>T4</td>
+      <td>查询余额（1000元）</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>T5</td>
+      <td>–</td>
+      <td>取出1000元（余额0元）</td>
+    </tr>
+    <tr>
+      <td>T6</td>
+      <td>–</td>
+      <td>提交事务</td>
+    </tr>
+    <tr>
+      <td>T7</td>
+      <td>查询余额（0元）</td>
+      <td>–</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>从上述表格中看到，事务A除了查询操作2次以外，其他什么事情都没有做，结果钱就从1000变为0了，这就是重复读。</p>
+
+<h3 id="33-幻读">3.3 幻读</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>时间</th>
+      <th>事务A（统计）</th>
+      <th>事务B（存款）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T1</td>
+      <td>开始事务</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>T2</td>
+      <td>–</td>
+      <td>开始事务</td>
+    </tr>
+    <tr>
+      <td>T3</td>
+      <td>统计总存款(1000元)</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>T4</td>
+      <td>–</td>
+      <td>存入100元</td>
+    </tr>
+    <tr>
+      <td>T5</td>
+      <td>–</td>
+      <td>提交事务</td>
+    </tr>
+    <tr>
+      <td>T6</td>
+      <td>统计总存款（10100元）</td>
+      <td>–</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>事务A每次统计的结果都是不一样的，就好像产生了幻觉一样。</p>
+
+<blockquote>
+  <p><strong>小结：</strong></p>
+
+  <p>不可重复读和幻读很容易混淆，不可重复读侧重于修改，幻读侧重于新增或删除。解决不可重复读的问题只需要锁住满足条件的行，解决幻读需要锁表。</p>
+</blockquote>
+
+<p><strong>不同的隔离级别解决并发问题：</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>事务隔离级别</th>
+      <th>脏读</th>
+      <th>不可重复读</th>
+      <th>幻读</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>READ_UNCOMMITTED</td>
+      <td>允许</td>
+      <td>允许</td>
+      <td>允许</td>
+    </tr>
+    <tr>
+      <td>READ_COMMITTED</td>
+      <td>禁止</td>
+      <td>允许</td>
+      <td>允许</td>
+    </tr>
+    <tr>
+      <td>REPEATABLE_READ</td>
+      <td>禁止</td>
+      <td>禁止</td>
+      <td>允许</td>
+    </tr>
+    <tr>
+      <td>SERIALIZABLE</td>
+      <td>禁止</td>
+      <td>禁止</td>
+      <td>禁止</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>MySQL 默认的隔离级别是：REPEATABLE_READ(重复读)</p>
+</blockquote>
+
+<h2 id="4-spring-的事务传播行为">4. Spring 的事务传播行为</h2>
+
+<blockquote>
+  <p>前提条件：</p>
+
+  <ul>
+    <li>方法A有事务，方法B也有事务</li>
+    <li>方法A有事务，方法B没有事务</li>
+    <li>方法A没有事务，方法B有事务</li>
+    <li>方法A没有事务，方法B也没有事务</li>
+  </ul>
+</blockquote>
+
+<p><img src="https://markdown-written.oss-cn-hangzhou.aliyuncs.com/markdown/20220209162141.png" alt="" /></p>
+
+<p>如上图所示：<code class="language-plaintext highlighter-rouge">FooService</code> 的业务方法的传播行为被我们指定为 <code class="language-plaintext highlighter-rouge">Required</code>，表示如果当前存在事务的话，则加入当前事务。</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">FoobarService</code> 在调用 <code class="language-plaintext highlighter-rouge">FooService</code> 业务方法的时候已经启动了一个事务，所以，<code class="language-plaintext highlighter-rouge">FooService</code> 的业务方法会直接加入<code class="language-plaintext highlighter-rouge"> FooBarService</code>启动的事务1中。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">BarService</code>的业务方法的传播行为被指定为<code class="language-plaintext highlighter-rouge">RequiredNew</code>，表示无论当前是否存在事务，都需要为其重新启动一个事务，所以它使用的是自己启动的事务2.</p>
+  </li>
+</ul>
+
+<p><strong>Spring 提供了7种事务传播行为：</strong></p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PROPAGATION_REQUIRED</code>(默认)</p>
+
+    <p>如果没有，就新建一个事务；如果有，就加入当前事务。总之，要至少保证在一个事务中运行。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PROPAGATION_REQUIRES_NEW</code></p>
+
+    <p>如果没有，就新建一个事务；如果有，就将当前事务挂起。意思就是创建一个事务，和原来的事务没有关系了。场景：如果某个业务对象所做的事情不想影响到外层事务，REQUIRES_NEW是合适的选择。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PROPAGATION_NESTED</code></p>
+
+    <p>如果没有，就新建一个事务；如果有，就在当前事务中嵌套其他事务。所嵌套的子事务和主事务之间是有关联的（当主事务提交或回滚，子事务也会提交或回滚）。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PROPAGATION_SUPPORTS</code></p>
+
+    <p>如果没有，就以非事务方式执行；如果有，就使用当前事务。</p>
+
+    <p>对于一些查询方法来说，SUPPORTS 通常是比较合适的传播行为。如果当前方法直接执行，那么不需要事务的支持；如果当前方法被其他方法调用，而其他方法启动了一个事务，使用 SUPPORTS 可以保证当前方法能够加入当前事务，并且洞察当前事务对数据资源所做的更新。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PROPAGATION_NOT_SUPPORTS</code></p>
+
+    <p>如果没有，就以非事务方式执行；如果有，就将当前事务挂起（但也要看对应的事务管理器实现类是否支持事务的挂起）。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PROPAGATION_NEVER</code></p>
+
+    <p>如果没有，就以非事务方式执行；如果有，就抛出异常。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PROPAGATION_MANDATORY</code></p>
+
+    <p>如果没有，就抛出异常；如果有，就使用当前事务。</p>
+  </li>
+</ol>
+
+<p><strong>Spring 提供了一些小的附加功能：</strong></p>
+
+<ul>
+  <li>事务超时(<code class="language-plaintext highlighter-rouge">Transaction Timeout</code>) 为了解决事务时间太长，消耗太多资源的问题，所以故意给事务设置一个最大时长，如果超时了，就回滚事务。</li>
+  <li>只读事务(<code class="language-plaintext highlighter-rouge">Readonly Transaction</code>) 为了忽略哪些不需要事务的方法，比如读取数据，就样可以有效地提高一些性能。</li>
+</ul>
+
+<h2 id="5-总结">5. 总结</h2>
+
+<p><img src="https://markdown-written.oss-cn-hangzhou.aliyuncs.com/markdown/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86.png" alt="" /></p>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="数据库事务" /><category term="Spring 事务管理" /><summary type="html"><![CDATA[事务管理简介 事务(Transaction ) 通俗的讲就是一件事件，要么做完，要么不做，不要做一半留一半。也就是说，事务必须是一个不可分割的整体。 1. 事务特性 1.1 原子性(Atomicity) 事务必须是一个不可分割的整体，要么全部执行，要么不执行。 1.2. 一致性(Consistency) 事务开始前和结束后，数据库的完整性约束没有被破坏 。比如 A 向 B 转账，不可能 A 扣了钱，B 却没收到。 1.3. 隔离性(Isolation) 同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任务干扰。 1.4. 持久性(Durability) 事务完成后，事务对数据库的所有更改将被保存到数据库中。 2. 事务隔离级别 数据库定义了4个隔离的级别： READ_UNCOMMITTED 读未提交 READ_COMMITTED 读提交 REPEATABLE_READ 重复读 SERIALIZABLE 序列化 从上往下，级别越来越高，并发性越来越差，一致性越来越高。 3. 事务面临的问题 数据库在高并发下会产生下列问题： Dirty Read 脏读 Unrepeatable Read 不可重复读 Phantom Read 幻读 3.1 脏读 脏读可以理解为读到 “垃圾数据”了。比如有2个事务同时对数据库进行操作，会发生竞争，如下表所示： 时间 事务A（存款） 事务B（取款） T1 开始事务 – T2 – 开始事务 T3 – 查询余额（1000元） T4 – 取出1000（余额0元） T5 查询余额（0元） – T6 – 撤销事务(余额恢复为1000元) T7 存入500元（余额500元） – T8 提交事务 – 余额应该为1500元，但是T5时间点，事务A查询余额为0元，这个数据就是脏数据，它是事务B造成的。所以脏数据是非常要不得的。 3.2 不可重复读 时间 事务A（存款） 事务B（取款） T1 开始事务 – T2 – 开始事务 T3 – 查询余额（1000元） T4 查询余额（1000元） – T5 – 取出1000元（余额0元） T6 – 提交事务 T7 查询余额（0元） – 从上述表格中看到，事务A除了查询操作2次以外，其他什么事情都没有做，结果钱就从1000变为0了，这就是重复读。 3.3 幻读 时间 事务A（统计） 事务B（存款） T1 开始事务 – T2 – 开始事务 T3 统计总存款(1000元) – T4 – 存入100元 T5 – 提交事务 T6 统计总存款（10100元） – 事务A每次统计的结果都是不一样的，就好像产生了幻觉一样。 小结： 不可重复读和幻读很容易混淆，不可重复读侧重于修改，幻读侧重于新增或删除。解决不可重复读的问题只需要锁住满足条件的行，解决幻读需要锁表。 不同的隔离级别解决并发问题： 事务隔离级别 脏读 不可重复读 幻读 READ_UNCOMMITTED 允许 允许 允许 READ_COMMITTED 禁止 允许 允许 REPEATABLE_READ 禁止 禁止 允许 SERIALIZABLE 禁止 禁止 禁止 MySQL 默认的隔离级别是：REPEATABLE_READ(重复读) 4. Spring 的事务传播行为 前提条件： 方法A有事务，方法B也有事务 方法A有事务，方法B没有事务 方法A没有事务，方法B有事务 方法A没有事务，方法B也没有事务 如上图所示：FooService 的业务方法的传播行为被我们指定为 Required，表示如果当前存在事务的话，则加入当前事务。 FoobarService 在调用 FooService 业务方法的时候已经启动了一个事务，所以，FooService 的业务方法会直接加入 FooBarService启动的事务1中。 BarService的业务方法的传播行为被指定为RequiredNew，表示无论当前是否存在事务，都需要为其重新启动一个事务，所以它使用的是自己启动的事务2. Spring 提供了7种事务传播行为： PROPAGATION_REQUIRED(默认) 如果没有，就新建一个事务；如果有，就加入当前事务。总之，要至少保证在一个事务中运行。 PROPAGATION_REQUIRES_NEW 如果没有，就新建一个事务；如果有，就将当前事务挂起。意思就是创建一个事务，和原来的事务没有关系了。场景：如果某个业务对象所做的事情不想影响到外层事务，REQUIRES_NEW是合适的选择。 PROPAGATION_NESTED 如果没有，就新建一个事务；如果有，就在当前事务中嵌套其他事务。所嵌套的子事务和主事务之间是有关联的（当主事务提交或回滚，子事务也会提交或回滚）。 PROPAGATION_SUPPORTS 如果没有，就以非事务方式执行；如果有，就使用当前事务。 对于一些查询方法来说，SUPPORTS 通常是比较合适的传播行为。如果当前方法直接执行，那么不需要事务的支持；如果当前方法被其他方法调用，而其他方法启动了一个事务，使用 SUPPORTS 可以保证当前方法能够加入当前事务，并且洞察当前事务对数据资源所做的更新。 PROPAGATION_NOT_SUPPORTS 如果没有，就以非事务方式执行；如果有，就将当前事务挂起（但也要看对应的事务管理器实现类是否支持事务的挂起）。 PROPAGATION_NEVER 如果没有，就以非事务方式执行；如果有，就抛出异常。 PROPAGATION_MANDATORY 如果没有，就抛出异常；如果有，就使用当前事务。 Spring 提供了一些小的附加功能： 事务超时(Transaction Timeout) 为了解决事务时间太长，消耗太多资源的问题，所以故意给事务设置一个最大时长，如果超时了，就回滚事务。 只读事务(Readonly Transaction) 为了忽略哪些不需要事务的方法，比如读取数据，就样可以有效地提高一些性能。 5. 总结]]></summary></entry><entry><title type="html">Java内存区域与内存溢出异常</title><link href="https://kongxincai.net/2022/02/07/jvm-1.html" rel="alternate" type="text/html" title="Java内存区域与内存溢出异常" /><published>2022-02-07T00:00:00-08:00</published><updated>2022-02-07T00:00:00-08:00</updated><id>https://kongxincai.net/2022/02/07/jvm-1</id><content type="html" xml:base="https://kongxincai.net/2022/02/07/jvm-1.html"><![CDATA[<h3 id="1运行时数据区域">1.运行时数据区域</h3>
+
+<p>Java 虚拟机在执行Java程序的过程中会把它所管理的内存化分为若干个不同的数据区域。
+<img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d3484f19dead40b6bc0456546179eea5~tplv-k3u1fbpfcp-watermark.image" alt="image" />
+<strong><center> Java 虚拟机运行时数据区 </center></strong></p>
+
+<h4 id="11-程序计数器">1.1 程序计数器</h4>
+
+<p>程序计数器（Program Counter Register）为一块较小的内存空间，可以看作是当前线程所执行的字节码的行号指示器。</p>
+
+<p>字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，它是程序控制流的指示器，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计算器来完成。</p>
+
+<p>Java 虚拟机的多线程是通过线程轮流切换，分配处理器执行时间方式实现的。因此，为了线程切换后能恢复到正确的执行位置，每条线程都需要有一个独立的程序计数器，各条线程之间计数器互不影响，独立存储。称这类内存区域为“线程私有”的内存。</p>
+
+<h4 id="12-虚拟机栈">1.2 虚拟机栈</h4>
+
+<p>Java 虚拟机栈（Java Virtual Machine Stack）也是线程私有的，它的生命周期与线程相同。</p>
+
+<p>虚拟机栈描述的是Java方法执行的线程内存模型：<strong>每个方法被执行的时候，Java 虚拟机都会同步创建一个栈帧 <code class="language-plaintext highlighter-rouge">Stack Frame</code> 用于存储局部变量表、操作数栈、动态连接、方法出口等信息。</strong></p>
+
+<p>每个方法被调用直至执行完毕的过程，就对应一个栈帧在虚拟机栈中从入栈到出栈的过程。</p>
+
+<p>局部变量表存放了编译器可知的数据类型：</p>
+
+<ul>
+  <li>Java 虚拟机基本数据类型 <br />
+  boolean、byte、char、short、int、float、long、double</li>
+  <li>对象引用 <br />
+  reference类型，它并不等同于对象本身，可能是一个指向对象起始地址的引用指针，也可能是指向一个代表对象的句柄或者其他与对象相关的位置</li>
+  <li>returnAddress类型 <br />
+  指向了一条字节码指令的地址</li>
+</ul>
+
+<p>这些数据类型在局部变量表中的存储空间以局部变量槽<code class="language-plaintext highlighter-rouge">Slot</code>表示。<strong>局部变量表所需的内存空间在编译期间完成分配，当进入一个方法时，这个方法需要在栈帧中分配多大的局部变量空间是完全确定的，在方法运行期间不会改变局部变量表的大小。</strong></p>
+
+<p>Java 虚拟机规范中，对Java 虚拟机栈内存区域规定了2类异常：</p>
+
+<ul>
+  <li>StackOverflowError <br />
+  线程请求的栈深度大于虚拟机所允许的深度，将抛出<code class="language-plaintext highlighter-rouge">StackOverflowError</code>异常</li>
+  <li>OutOfMemoryError <br />
+  线程无法申请足够的栈内存空间会抛出<code class="language-plaintext highlighter-rouge">OutOfMemoryError</code>异常</li>
+</ul>
+
+<p><strong>注：HotSpot 虚拟机不支持栈的动态扩展，所以除非在创建线程申请内存时就因无法获得足够内存而出现OutOfMemoryError异常。</strong></p>
+
+<h4 id="13-本地方法栈">1.3 本地方法栈</h4>
+
+<p>HotSpot 虚拟机中并不区分虚拟机栈和本地方法栈，因此对于HotSpot，-Xoss参数（设置本地方法栈大小）虽然存在，但实际上没有任何效果，栈容量只能由-Xss参数设定。</p>
+
+<p>本地方法栈<code class="language-plaintext highlighter-rouge">Native Method Stacks</code> 与虚拟机栈所发挥的作用是相似的，区别在于虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则是为虚拟机使用到的本地方法服务。</p>
+
+<h4 id="14-java堆">1.4 Java堆</h4>
+
+<p>Java堆是被所有线程共享的一块内存区域，在虚拟机启动时创建。此内存区域的唯一目的就是存放对象实例，Java世界里“几乎”所有的对象实例都在这里分配内存。</p>
+
+<p>Java堆既可以被实现成固定大小，也可以是可扩展的（通过参数-Xmx和-Xms设定）。如果在Java堆中没有内存完成实例分配，并且堆也无法在扩展时，Java虚拟机将会抛出OutOfMemoryError异常。</p>
+
+<h4 id="15-方法区">1.5 方法区</h4>
+
+<p>方法区<code class="language-plaintext highlighter-rouge">Method Area</code>与Java堆一样，也是各个线程共享的内存区域，用于存储已被虚拟机加载的类型信息、常量、静态变量、即时编译器编译后的代码缓存等数据。</p>
+
+<p>永久代：JDK8之前，常把方法区称为“永久代”，本质上这两者并不是等价的，仅仅是当时的HotSpot虚拟机设计团队选择把收集器的分代设计扩展至方法区，或者说使用永久代来实现方法区而已。这样HotSpot的垃圾收集器能够像管理Java堆一样管理这部分内存，省去专门为方法区编写内存管理的代码。</p>
+
+<p><strong>JDK8中废弃了永久代的概念，改用在本地内存中实现的元空间<code class="language-plaintext highlighter-rouge">Metaspace</code>来代替</strong>。</p>
+
+<p>方法区的内存回收目标主要是针对常量池的回收和对类型的卸载。如果方法区无法满足新的内存分配需求时，将抛出<code class="language-plaintext highlighter-rouge">OutOfMemoryError</code>异常。</p>
+
+<h4 id="16-运行时常量池">1.6 运行时常量池</h4>
+
+<p>运行时常量池可以保存Class文件中描述的符号引用外，还会把由符号引用翻译出来的直接引用也存储在运行时常量池中。另一个特性是，相对于Class文件常量池具备动态性。</p>
+
+<p>运行期间也可以将新的常量池放入池中，这种特性被开发人员利用较多的是String类的intern()方法。</p>
+
+<p>运行时常量池是方法区的一部分，自然受到方法区内存的限制，当常量池无法再申请到内存时会抛出<code class="language-plaintext highlighter-rouge">OutOfMemoryError</code>异常。</p>
+
+<h4 id="17-直接内存">1.7 直接内存</h4>
+
+<p>在JDK 1.4中新加入了NIO（NewInput/Output）类，引入了一种基于通道（Channel）与缓冲区 （Buffer）的I/O方式，它可以使用Native函数库直接分配堆外内存，然后通过一个存储在Java堆里面的<code class="language-plaintext highlighter-rouge">DirectByteBuffer</code>对象作为这块内存的引用进行操作。</p>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="Java 核心知识" /><category term="JVM" /><summary type="html"><![CDATA[1.运行时数据区域 Java 虚拟机在执行Java程序的过程中会把它所管理的内存化分为若干个不同的数据区域。 Java 虚拟机运行时数据区 1.1 程序计数器 程序计数器（Program Counter Register）为一块较小的内存空间，可以看作是当前线程所执行的字节码的行号指示器。 字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，它是程序控制流的指示器，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计算器来完成。 Java 虚拟机的多线程是通过线程轮流切换，分配处理器执行时间方式实现的。因此，为了线程切换后能恢复到正确的执行位置，每条线程都需要有一个独立的程序计数器，各条线程之间计数器互不影响，独立存储。称这类内存区域为“线程私有”的内存。 1.2 虚拟机栈 Java 虚拟机栈（Java Virtual Machine Stack）也是线程私有的，它的生命周期与线程相同。 虚拟机栈描述的是Java方法执行的线程内存模型：每个方法被执行的时候，Java 虚拟机都会同步创建一个栈帧 Stack Frame 用于存储局部变量表、操作数栈、动态连接、方法出口等信息。 每个方法被调用直至执行完毕的过程，就对应一个栈帧在虚拟机栈中从入栈到出栈的过程。 局部变量表存放了编译器可知的数据类型： Java 虚拟机基本数据类型 boolean、byte、char、short、int、float、long、double 对象引用 reference类型，它并不等同于对象本身，可能是一个指向对象起始地址的引用指针，也可能是指向一个代表对象的句柄或者其他与对象相关的位置 returnAddress类型 指向了一条字节码指令的地址 这些数据类型在局部变量表中的存储空间以局部变量槽Slot表示。局部变量表所需的内存空间在编译期间完成分配，当进入一个方法时，这个方法需要在栈帧中分配多大的局部变量空间是完全确定的，在方法运行期间不会改变局部变量表的大小。 Java 虚拟机规范中，对Java 虚拟机栈内存区域规定了2类异常： StackOverflowError 线程请求的栈深度大于虚拟机所允许的深度，将抛出StackOverflowError异常 OutOfMemoryError 线程无法申请足够的栈内存空间会抛出OutOfMemoryError异常 注：HotSpot 虚拟机不支持栈的动态扩展，所以除非在创建线程申请内存时就因无法获得足够内存而出现OutOfMemoryError异常。 1.3 本地方法栈 HotSpot 虚拟机中并不区分虚拟机栈和本地方法栈，因此对于HotSpot，-Xoss参数（设置本地方法栈大小）虽然存在，但实际上没有任何效果，栈容量只能由-Xss参数设定。 本地方法栈Native Method Stacks 与虚拟机栈所发挥的作用是相似的，区别在于虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则是为虚拟机使用到的本地方法服务。 1.4 Java堆 Java堆是被所有线程共享的一块内存区域，在虚拟机启动时创建。此内存区域的唯一目的就是存放对象实例，Java世界里“几乎”所有的对象实例都在这里分配内存。 Java堆既可以被实现成固定大小，也可以是可扩展的（通过参数-Xmx和-Xms设定）。如果在Java堆中没有内存完成实例分配，并且堆也无法在扩展时，Java虚拟机将会抛出OutOfMemoryError异常。 1.5 方法区 方法区Method Area与Java堆一样，也是各个线程共享的内存区域，用于存储已被虚拟机加载的类型信息、常量、静态变量、即时编译器编译后的代码缓存等数据。 永久代：JDK8之前，常把方法区称为“永久代”，本质上这两者并不是等价的，仅仅是当时的HotSpot虚拟机设计团队选择把收集器的分代设计扩展至方法区，或者说使用永久代来实现方法区而已。这样HotSpot的垃圾收集器能够像管理Java堆一样管理这部分内存，省去专门为方法区编写内存管理的代码。 JDK8中废弃了永久代的概念，改用在本地内存中实现的元空间Metaspace来代替。 方法区的内存回收目标主要是针对常量池的回收和对类型的卸载。如果方法区无法满足新的内存分配需求时，将抛出OutOfMemoryError异常。 1.6 运行时常量池 运行时常量池可以保存Class文件中描述的符号引用外，还会把由符号引用翻译出来的直接引用也存储在运行时常量池中。另一个特性是，相对于Class文件常量池具备动态性。 运行期间也可以将新的常量池放入池中，这种特性被开发人员利用较多的是String类的intern()方法。 运行时常量池是方法区的一部分，自然受到方法区内存的限制，当常量池无法再申请到内存时会抛出OutOfMemoryError异常。 1.7 直接内存 在JDK 1.4中新加入了NIO（NewInput/Output）类，引入了一种基于通道（Channel）与缓冲区 （Buffer）的I/O方式，它可以使用Native函数库直接分配堆外内存，然后通过一个存储在Java堆里面的DirectByteBuffer对象作为这块内存的引用进行操作。]]></summary></entry><entry><title type="html">PancakeHunny 闪电贷 LP 池操控攻击分析</title><link href="https://kongxincai.net/2021/11/03/defi-hunny-attack-analysis.html" rel="alternate" type="text/html" title="PancakeHunny 闪电贷 LP 池操控攻击分析" /><published>2021-11-03T00:00:00-08:00</published><updated>2021-11-03T00:00:00-08:00</updated><id>https://kongxincai.net/2021/11/03/defi-hunny-attack-analysis</id><content type="html" xml:base="https://kongxincai.net/2021/11/03/defi-hunny-attack-analysis.html"><![CDATA[<h1 id="背景">背景</h1>
+
+<p>2021 年 10 月 20 日 UTC 时间上午 9 点，PancakeHunny 平台遭遇闪电贷智能合约攻击，攻击者通过操纵 PCS 上的 WBNB/TUSD 的流动性从而操纵了兑换比例，实现了 HUNNY 铸币合约的大量铸币，完成攻击。</p>
+
+<p>最终攻击者获利 230 万美元（64.2 万是稳定币 + 435.31 ETH），并且大量铸造 HUNNY 代币，将 HUNNY 的价格从 0.3 抛售到 0.1 美元。
+​</p>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/1635583246116-9c41c78d-cfc2-4008-8ad1-2682ae038fe4.png" alt="" /></p>
+
+<p>这一操作的 TxHash 从 bscscan 上可以找到：<a href="https://bscscan.com/tx/0x1b698231965b72f64d55c561634600b087154f71bc73fc775622a45112a94a77">0x1b698231965b72f64d55c561634600b087154f71bc73fc775622a45112a94a77</a>。
+​
+下面我们来复盘一下整个攻击手法和流程。</p>
+
+<h1 id="代码中的根本原因">代码中的根本原因</h1>
+
+<p>可以查看合约 <a href="https://bscscan.com/address/0x27d4ca4bb855e435959295ec273fa16fe8caea14#code">VaultStrategyAlpacaRabbit</a>，这个合约是可升级合约的原合约地址。目前该合约仍旧由线上 <a href="https://bscscan.com/address/0xef43313e8218f25fe63d5ae76d98182d7a4797cc">TUSD 单币池合约地址</a>进行代理转发（也就是线上还没有进行更换），但是目前官方已经发现了问题，已经关闭了该池的铸币（那其实还不如直接存 Alpaca Finance）。
+​
+我们在 <a href="https://bscscan.com/address/0x27d4ca4bb855e435959295ec273fa16fe8caea14#code">VaultStrategyAlpacaRabbit</a> 合约中，可看到以下代码：</p>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/1635956502729-dab865ce-a8bc-4ee7-9104-991739decb3b.png" alt="" />
+​</p>
+
+<p>在上述代码中，黄色高亮的一行就是此次攻击的根本原因。原因就是因为这个 swap 的 Path 最终选用的是 <code class="language-plaintext highlighter-rouge">[ALPACA, WBNB, TUSD]</code> ，<strong>然而 TUSD/WBNB 的 LP Token 其流动性仅有 2 美元（这是目前的情况，可以</strong><a href="https://pancakeswap.finance/info/pool/0x1b011a21c02194a449e32f729489d299f907e71a"><strong>查看 PCS 的流动性数据</strong></a><strong>）</strong>，于是攻击者就通过闪电贷放大资金量，从而控制这组 LP Token 的兑换汇率，从而进行攻击。
+​</p>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/1635957697293-931a04a8-5b51-416f-999b-f2a7fe26ab52.png" alt="" /></p>
+
+<p>接下来我们来分步骤解析这个过程：
+​</p>
+
+<ul>
+  <li>攻击者利用闪电贷，借出 270 万 TUSD，并且全部通过 <code class="language-plaintext highlighter-rouge">[TUSD, WBNB]</code> 的 Path 兑换成了 WBNB。根据 AMM 的恒定乘积公式 \(x \times y = k\) ，由于大量的 TUSD 进入到了 TUSD/WBNB Lp 池中，<strong>所以通过十分少量的 WBNB 沿着相反的 Path 就能兑换出大量的 TUSD</strong>。</li>
+  <li>第二步，攻击者会将一笔可观的 TUSD 数额放入 TUSD 单币池中，让其占据了该池 99% 的收益。此时因为步骤一种操控了 Lp 池，大量的 TUSD 会被兑换出来。</li>
+  <li>第三步，攻击者会调用 <code class="language-plaintext highlighter-rouge">getReward()</code> 方法，这个方法会调用 <code class="language-plaintext highlighter-rouge">_withdrawStakingToken()</code> 方法，其中会返回 <code class="language-plaintext highlighter-rouge">withdrawAmount</code> 这个变量。</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">withdrawAmount</span> <span class="o">=</span> <span class="n">_stakingToken</span><span class="nf">.balanceOf</span><span class="p">(</span><span class="nf">address</span><span class="p">(</span><span class="n">this</span><span class="p">))</span><span class="nf">.sub</span><span class="p">(</span><span class="n">stakingTokenBefore</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>它会通过 <code class="language-plaintext highlighter-rouge">_stakingToken</code> 也就是我们的 TUSD 总量来计算。而 <code class="language-plaintext highlighter-rouge">withdrawAmount</code> 就是用来传入到 <code class="language-plaintext highlighter-rouge">minter</code> 中，其价值的 30% 为总量负责铸造 HUNNY 代币的数量控制变量，从而造成大量的 <code class="language-plaintext highlighter-rouge">HUNNY</code> 被铸造。</p>
+
+<ul>
+  <li>攻击者抛售大量的 <code class="language-plaintext highlighter-rouge">HUNNY</code> 完成此次经济攻击。</li>
+</ul>
+
+<h1 id="复盘">复盘</h1>
+
+<p>攻击者完成本次攻击，是与以往的 <code class="language-plaintext highlighter-rouge">BUNNY</code> 攻击有所区别的，<code class="language-plaintext highlighter-rouge">BUNNY</code> 中的错误实在是太低级了，使用了账户余额的代币数量来铸造 <code class="language-plaintext highlighter-rouge">BUNNY</code> 。虽然 <code class="language-plaintext highlighter-rouge">HUNNY</code> 通过使用增量变量的方式避免了 <code class="language-plaintext highlighter-rouge">BUNNY</code> 的漏洞，但对于 LP Token 市值太低容易操纵这一环节没有戒备心，从而导致了经济漏洞。
+​</p>
+
+<p>反思：在制作机枪池的时候，如果有 Minter 进行铸造操纵，一定要慎之又慎，来验证每一步用到的数量关系，再进行代码编写。</p>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="Blockchain" /><category term="DeFi" /><category term="Web3" /><summary type="html"><![CDATA[背景 2021 年 10 月 20 日 UTC 时间上午 9 点，PancakeHunny 平台遭遇闪电贷智能合约攻击，攻击者通过操纵 PCS 上的 WBNB/TUSD 的流动性从而操纵了兑换比例，实现了 HUNNY 铸币合约的大量铸币，完成攻击。 最终攻击者获利 230 万美元（64.2 万是稳定币 + 435.31 ETH），并且大量铸造 HUNNY 代币，将 HUNNY 的价格从 0.3 抛售到 0.1 美元。 ​ 这一操作的 TxHash 从 bscscan 上可以找到：0x1b698231965b72f64d55c561634600b087154f71bc73fc775622a45112a94a77。 ​ 下面我们来复盘一下整个攻击手法和流程。 代码中的根本原因 可以查看合约 VaultStrategyAlpacaRabbit，这个合约是可升级合约的原合约地址。目前该合约仍旧由线上 TUSD 单币池合约地址进行代理转发（也就是线上还没有进行更换），但是目前官方已经发现了问题，已经关闭了该池的铸币（那其实还不如直接存 Alpaca Finance）。 ​ 我们在 VaultStrategyAlpacaRabbit 合约中，可看到以下代码： ​ 在上述代码中，黄色高亮的一行就是此次攻击的根本原因。原因就是因为这个 swap 的 Path 最终选用的是 [ALPACA, WBNB, TUSD] ，然而 TUSD/WBNB 的 LP Token 其流动性仅有 2 美元（这是目前的情况，可以查看 PCS 的流动性数据），于是攻击者就通过闪电贷放大资金量，从而控制这组 LP Token 的兑换汇率，从而进行攻击。 ​ 接下来我们来分步骤解析这个过程： ​ 攻击者利用闪电贷，借出 270 万 TUSD，并且全部通过 [TUSD, WBNB] 的 Path 兑换成了 WBNB。根据 AMM 的恒定乘积公式 \(x \times y = k\) ，由于大量的 TUSD 进入到了 TUSD/WBNB Lp 池中，所以通过十分少量的 WBNB 沿着相反的 Path 就能兑换出大量的 TUSD。 第二步，攻击者会将一笔可观的 TUSD 数额放入 TUSD 单币池中，让其占据了该池 99% 的收益。此时因为步骤一种操控了 Lp 池，大量的 TUSD 会被兑换出来。 第三步，攻击者会调用 getReward() 方法，这个方法会调用 _withdrawStakingToken() 方法，其中会返回 withdrawAmount 这个变量。 withdrawAmount = _stakingToken.balanceOf(address(this)).sub(stakingTokenBefore); 它会通过 _stakingToken 也就是我们的 TUSD 总量来计算。而 withdrawAmount 就是用来传入到 minter 中，其价值的 30% 为总量负责铸造 HUNNY 代币的数量控制变量，从而造成大量的 HUNNY 被铸造。 攻击者抛售大量的 HUNNY 完成此次经济攻击。 复盘 攻击者完成本次攻击，是与以往的 BUNNY 攻击有所区别的，BUNNY 中的错误实在是太低级了，使用了账户余额的代币数量来铸造 BUNNY 。虽然 HUNNY 通过使用增量变量的方式避免了 BUNNY 的漏洞，但对于 LP Token 市值太低容易操纵这一环节没有戒备心，从而导致了经济漏洞。 ​ 反思：在制作机枪池的时候，如果有 Minter 进行铸造操纵，一定要慎之又慎，来验证每一步用到的数量关系，再进行代码编写。]]></summary></entry><entry><title type="html">LP Token 价格计算推导及安全性</title><link href="https://kongxincai.net/2021/09/06/defi-lp-price.html" rel="alternate" type="text/html" title="LP Token 价格计算推导及安全性" /><published>2021-09-06T00:00:00-08:00</published><updated>2021-09-06T00:00:00-08:00</updated><id>https://kongxincai.net/2021/09/06/defi-lp-price</id><content type="html" xml:base="https://kongxincai.net/2021/09/06/defi-lp-price.html"><![CDATA[<h1 id="背景">背景</h1>
+
+<p>在实现 CakeBot 的 USDT/USDC 池时，需要计算 LP Token 的代币价值，从而方便的给用户提示 LP Token 当前准确的价格，来计算收益率。所以对 LP Token 的价值计算做了一点深入的研究，并且还翻阅到 Alpha Finance 团队的关于安全获取 LP 价格的方法。
+本位将这些学习笔记分享给大家。
+​</p>
+
+<h1 id="一般-lp-token-价格的获取方法">一般 LP Token 价格的获取方法</h1>
+
+<p>我们知道对于一般 Token 的价格，在 Cex 中其实是市场上交易撮合的成交价。在 Dex 中，由于 AMM 做市商模型通过一组 LP 来构建价格的锚定。所以如果我们想获取到一个 Token 的价格，都是通过对于稳定币 USDT、USDC 或者 BUSD 的币对关系，从而反映现实世界的价格。
+​</p>
+
+<p>我们知道 LP Token 是不具有流动性池的，如果有那就是套娃了。那么我们应该如何去计算价格呢？其实我们只需要用总增发量和货币价格反推即可。
+​</p>
+
+\[Cap_x = P_x \times T_x\]
+
+<p>​</p>
+
+<p>任意一个 Token X 的总市值是 $Cap_x$，是用当前的价格 $P_x$ 和当前总铸造数量 $T_x$相乘可得。对于 LP Token，我们可以用这个公式来反推币价。因为在 LP Token 中，总市值是可以通过两种币的数量和对应价格求得，并且总的制造数量也是已知的。
+​</p>
+
+<p>所以我们可以如此计算 LP Token 总价格：
+​</p>
+
+\[P_{LP} = \frac{Cap_{LP}}{T_{LP}} = \frac{r_0 \times price_0 + r_1 \times price_1}{totalSupply}\]
+
+<p>​</p>
+
+<p>其中，$r_0$和 $r_1$就是 LP Token 合约中两种代币的存量，$price_0$和 $price_1$分别代表 $r_0$和 $r_1$ 对应 Token 的价格。市面上无论 BSC、ETH 还是 Polygon 还是 Heco 链等，其 LP 代币基本都是 fork Uniswap 的，所以 $r_0$和 $r_1$、$price_0$和 $price_1$ 都是能拿到的。
+​</p>
+
+<p>上面的公式我们其实可以看出，是通过市值反推价格，也没有什么巨大的逻辑问题。当我们需要访问其币价的时候已经可以满足需求。在 Web3.js 前端中，我们就可以照此拿到结果。</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">getLpTokenPrice</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span>
+  <span class="nx">lpAddress</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">lib</span><span class="p">:</span> <span class="nx">any</span><span class="p">,</span>
+  <span class="nx">price0</span><span class="p">:</span> <span class="nx">BigNumber</span><span class="p">,</span>
+  <span class="nx">price1</span><span class="p">:</span> <span class="nx">BigNumber</span>
+<span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">lpToken</span> <span class="o">=</span> <span class="nx">getPancakeLp</span><span class="p">(</span><span class="nx">lib</span><span class="p">,</span> <span class="nx">lpAddress</span><span class="p">);</span>
+  <span class="kd">let</span> <span class="p">[</span><span class="nx">r0</span><span class="p">,</span> <span class="nx">r1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="nx">lpToken</span><span class="p">.</span><span class="nx">getReserves</span><span class="p">()).</span><span class="nx">map</span><span class="p">((</span><span class="nx">n</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">bignumberToBN</span><span class="p">(</span><span class="nx">n</span><span class="p">));</span>
+  <span class="kd">let</span> <span class="nx">totalSupply</span> <span class="o">=</span> <span class="nx">bignumberToBN</span><span class="p">(</span><span class="k">await</span> <span class="nx">lpToken</span><span class="p">.</span><span class="nx">totalSupply</span><span class="p">());</span>
+  <span class="k">return</span> <span class="nx">r0</span>
+    <span class="p">.</span><span class="nx">multipliedBy</span><span class="p">(</span><span class="nx">price0</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">plus</span><span class="p">(</span><span class="nx">r1</span><span class="p">.</span><span class="nx">multipliedBy</span><span class="p">(</span><span class="nx">price1</span><span class="p">))</span>
+    <span class="p">.</span><span class="nx">dividedBy</span><span class="p">(</span><span class="nx">totalSupply</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>至此，我的需求完成。</p>
+
+<h1 id="延时喂价漏洞">延时喂价漏洞</h1>
+
+<p>对于上文公式：
+​</p>
+
+\[price_{lp}= \frac{r_0 \times price_0 + r_1 \times price_1}{totalSupply}\]
+
+<p>其实乍一看是不存在问题的。但是如果我们所做的需求，不仅仅是一个价格展示，而是一个借贷系统，用这种方式来获取清算系数，就会<strong>存在被闪电贷的风险</strong>。虽然 $price_0$和 $price_1$不能被操控，但是 $r_0$和 $r_1$是可以的。黑客可以通过操作 $r_0$ 和 $r_1$，从而对价格实现控制。</p>
+
+<p>之前漫雾团队写过一篇<a href="https://mp.weixin.qq.com/s/ues5U9Bl971hSqGO1a4SYA">「Warp Finance 被黑详解」</a>的分析，采用了如下攻击流程：</p>
+
+<ol>
+  <li>通过 dydx 与 Uniswap 闪电贷借出 DAI 和 WETH；</li>
+  <li>用小部分 DAI 和 WETH 在 Uniswap 的 WETH-DAI LP 中添加流动性，获得 LP Token；</li>
+  <li>将 LP Token 抵押到 Wrap Finance 中；</li>
+  <li>用巨量的 WETH 兑换成 DAI，因为 WETH 迅速进入了 WETH-DAI 流动池，总数量大增。但是由于价格使用的是 Uniswap 的预言机，访问的是 Uniswap 的 LP 池，所以 WETH 的价格并未发生变化。从而导致 Wrap Finance 中的 WETH-DAI LP Token 价格迅速提高；</li>
+  <li>由于 LP Token 单价变高，导致黑客抵押的 LP Token 可以借出更多的稳定币来获息。</li>
+</ol>
+
+<p>​</p>
+
+<p>这里，我们发现漏洞的关键地方，其实是 $price$ 计算对于借贷项目中，使用的是他人的 LP 合约，还未等套利者来平衡价格，从而终究留出了时间差。
+​</p>
+
+<p>为了解决这个问题，如果我们可以找到一种方式，从而规避价格查询，就能大概率防止上述漏洞。这里，Alpha Finance 给出了另外一个推导公式。</p>
+
+<h1 id="获取公平-lp-价格方法">获取公平 LP 价格方法</h1>
+
+<p>首先我们在一个 LP 池中，我们能保证的是恒定乘积 $K$ 值的大小，我们定义价格比值是 $P$，那么我们会有以下关系式：
+​</p>
+
+\[\begin{cases}
+K=r_0 \times r_1 \\
+P = \frac{r_1}{r_0}
+\end{cases}\]
+
+<p>​</p>
+
+<p>因为 $r_0$ 和 $r_1$ 在旧方法中是可以被操纵的，所以我们用 $K$ 和 $P$ 来反解真实的 $r’_{0}$ 和 $r’_1$ ：
+​</p>
+
+\[\begin{cases}
+r'_0 = \sqrt{K / P} \\
+r'_1 = \sqrt{K \times P}
+\end{cases}\]
+
+<p>如此，我们在带入一开始计算 $price_{lp}$的公式中：
+​</p>
+
+\[\begin{align}
+price_{lp}   &amp;= \frac{r'_0 \times price_0 + r'_1 \times price_1}{totalSupply} \\
+   &amp; = \frac{\sqrt{K/P}·price_0 + \sqrt{K·P}·price_1}{totalSupply} \\
+    &amp; = \frac{\sqrt{K · \frac{price_1}{price_0}·price_0^2} + \sqrt{K·\frac{price_0}{price_1}·price_1^2}}{totalSupply} \\
+&amp; = \frac{2\sqrt{K·price_0·price_1}}{totalSupply} \\
+&amp; = 2 \frac{\sqrt{r_0·r_1}·\sqrt{price_0 · price_1}}{totalSupply}
+\end{align}\]
+
+<p>我们可以发现，最终 Alpha Finance 给我们的推导式中，不会存在独立的 $r_0$ 和 $r_1$ ，取而代之的是它们的恒定乘积 $K$。</p>
+
+<h1 id="攻击可能性分析">攻击可能性分析</h1>
+
+<p>使用以上公式，我们可以真正的避免攻击吗？</p>
+
+<ol>
+  <li>​$price_0$和 $price_1$ 首先是可信源获取的正确价格，无法操纵；</li>
+  <li>$totalSupply$ 只是改变了质押数量，其变化与质押的两个代币数量有关系；</li>
+  <li>对于 $r_0$ 和 $r_1$ ，在 Alpha Finance 的博客中提供了两种思路：
+    <ol>
+      <li>直接进行代币兑换（类似于上述攻击手段），由于 $r_0 \times r_1$ 是定值 $K$，所以无论如何变化都不会影响计算结果；</li>
+      <li>直接将 Token 打入 LP Token 合约地址中，由于 $r_0$ 和 $r_1$ 都是在二次根式下，所以付出 $x$ 倍的成果，最终只能获得 $\sqrt{x}$ 倍的收益，这显然是亏本的；</li>
+    </ol>
+  </li>
+</ol>
+
+<p>综上，在已知情况下，是可以有效避免攻击的。</p>
+
+<h1 id="总结">总结</h1>
+
+<p>通过这次对 LP Token 价格计算的研究，并且对延时喂价漏洞的探求，了解了 LP 抵押使用一般方式计算带来的风险。计算价格的需求，一定要根据所做业务的类型，谨慎选择。</p>
+
+<h1 id="参考链接">参考链接</h1>
+
+<ul>
+  <li><a href="https://blog.alphafinance.io/fair-lp-token-pricing/">Alpha Finance 关于获取公平 LP 价格的方法</a></li>
+  <li><a href="https://ethfans.org/posts/a-safe-way-to-get-the-prices-of-lp-tokens">一种安全的 LP 价格的获取方法曾汨</a></li>
+</ul>
+
+<hr />
+
+<blockquote>
+  <p>欢迎大家使用我个人研发的 <a href="https://cakebot.finance/">Cakebot Finance</a> 来体验去中心化 DAPP 挖矿。</p>
+</blockquote>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="Blockchain" /><category term="DeFi" /><category term="Web3" /><summary type="html"><![CDATA[背景 在实现 CakeBot 的 USDT/USDC 池时，需要计算 LP Token 的代币价值，从而方便的给用户提示 LP Token 当前准确的价格，来计算收益率。所以对 LP Token 的价值计算做了一点深入的研究，并且还翻阅到 Alpha Finance 团队的关于安全获取 LP 价格的方法。 本位将这些学习笔记分享给大家。 ​ 一般 LP Token 价格的获取方法 我们知道对于一般 Token 的价格，在 Cex 中其实是市场上交易撮合的成交价。在 Dex 中，由于 AMM 做市商模型通过一组 LP 来构建价格的锚定。所以如果我们想获取到一个 Token 的价格，都是通过对于稳定币 USDT、USDC 或者 BUSD 的币对关系，从而反映现实世界的价格。 ​ 我们知道 LP Token 是不具有流动性池的，如果有那就是套娃了。那么我们应该如何去计算价格呢？其实我们只需要用总增发量和货币价格反推即可。 ​ \[Cap_x = P_x \times T_x\] ​ 任意一个 Token X 的总市值是 $Cap_x$，是用当前的价格 $P_x$ 和当前总铸造数量 $T_x$相乘可得。对于 LP Token，我们可以用这个公式来反推币价。因为在 LP Token 中，总市值是可以通过两种币的数量和对应价格求得，并且总的制造数量也是已知的。 ​ 所以我们可以如此计算 LP Token 总价格： ​ \[P_{LP} = \frac{Cap_{LP}}{T_{LP}} = \frac{r_0 \times price_0 + r_1 \times price_1}{totalSupply}\] ​ 其中，$r_0$和 $r_1$就是 LP Token 合约中两种代币的存量，$price_0$和 $price_1$分别代表 $r_0$和 $r_1$ 对应 Token 的价格。市面上无论 BSC、ETH 还是 Polygon 还是 Heco 链等，其 LP 代币基本都是 fork Uniswap 的，所以 $r_0$和 $r_1$、$price_0$和 $price_1$ 都是能拿到的。 ​ 上面的公式我们其实可以看出，是通过市值反推价格，也没有什么巨大的逻辑问题。当我们需要访问其币价的时候已经可以满足需求。在 Web3.js 前端中，我们就可以照此拿到结果。 export const getLpTokenPrice = async ( lpAddress: string, lib: any, price0: BigNumber, price1: BigNumber ) =&gt; { const lpToken = getPancakeLp(lib, lpAddress); let [r0, r1] = (await lpToken.getReserves()).map((n) =&gt; bignumberToBN(n)); let totalSupply = bignumberToBN(await lpToken.totalSupply()); return r0 .multipliedBy(price0) .plus(r1.multipliedBy(price1)) .dividedBy(totalSupply); }; 至此，我的需求完成。 延时喂价漏洞 对于上文公式： ​ \[price_{lp}= \frac{r_0 \times price_0 + r_1 \times price_1}{totalSupply}\] 其实乍一看是不存在问题的。但是如果我们所做的需求，不仅仅是一个价格展示，而是一个借贷系统，用这种方式来获取清算系数，就会存在被闪电贷的风险。虽然 $price_0$和 $price_1$不能被操控，但是 $r_0$和 $r_1$是可以的。黑客可以通过操作 $r_0$ 和 $r_1$，从而对价格实现控制。 之前漫雾团队写过一篇「Warp Finance 被黑详解」的分析，采用了如下攻击流程： 通过 dydx 与 Uniswap 闪电贷借出 DAI 和 WETH； 用小部分 DAI 和 WETH 在 Uniswap 的 WETH-DAI LP 中添加流动性，获得 LP Token； 将 LP Token 抵押到 Wrap Finance 中； 用巨量的 WETH 兑换成 DAI，因为 WETH 迅速进入了 WETH-DAI 流动池，总数量大增。但是由于价格使用的是 Uniswap 的预言机，访问的是 Uniswap 的 LP 池，所以 WETH 的价格并未发生变化。从而导致 Wrap Finance 中的 WETH-DAI LP Token 价格迅速提高； 由于 LP Token 单价变高，导致黑客抵押的 LP Token 可以借出更多的稳定币来获息。 ​ 这里，我们发现漏洞的关键地方，其实是 $price$ 计算对于借贷项目中，使用的是他人的 LP 合约，还未等套利者来平衡价格，从而终究留出了时间差。 ​ 为了解决这个问题，如果我们可以找到一种方式，从而规避价格查询，就能大概率防止上述漏洞。这里，Alpha Finance 给出了另外一个推导公式。 获取公平 LP 价格方法 首先我们在一个 LP 池中，我们能保证的是恒定乘积 $K$ 值的大小，我们定义价格比值是 $P$，那么我们会有以下关系式： ​ \[\begin{cases} K=r_0 \times r_1 \\ P = \frac{r_1}{r_0} \end{cases}\] ​ 因为 $r_0$ 和 $r_1$ 在旧方法中是可以被操纵的，所以我们用 $K$ 和 $P$ 来反解真实的 $r’_{0}$ 和 $r’_1$ ： ​ \[\begin{cases} r'_0 = \sqrt{K / P} \\ r'_1 = \sqrt{K \times P} \end{cases}\] 如此，我们在带入一开始计算 $price_{lp}$的公式中： ​ \[\begin{align} price_{lp} &amp;= \frac{r'_0 \times price_0 + r'_1 \times price_1}{totalSupply} \\ &amp; = \frac{\sqrt{K/P}·price_0 + \sqrt{K·P}·price_1}{totalSupply} \\ &amp; = \frac{\sqrt{K · \frac{price_1}{price_0}·price_0^2} + \sqrt{K·\frac{price_0}{price_1}·price_1^2}}{totalSupply} \\ &amp; = \frac{2\sqrt{K·price_0·price_1}}{totalSupply} \\ &amp; = 2 \frac{\sqrt{r_0·r_1}·\sqrt{price_0 · price_1}}{totalSupply} \end{align}\] 我们可以发现，最终 Alpha Finance 给我们的推导式中，不会存在独立的 $r_0$ 和 $r_1$ ，取而代之的是它们的恒定乘积 $K$。 攻击可能性分析 使用以上公式，我们可以真正的避免攻击吗？ ​$price_0$和 $price_1$ 首先是可信源获取的正确价格，无法操纵； $totalSupply$ 只是改变了质押数量，其变化与质押的两个代币数量有关系； 对于 $r_0$ 和 $r_1$ ，在 Alpha Finance 的博客中提供了两种思路： 直接进行代币兑换（类似于上述攻击手段），由于 $r_0 \times r_1$ 是定值 $K$，所以无论如何变化都不会影响计算结果； 直接将 Token 打入 LP Token 合约地址中，由于 $r_0$ 和 $r_1$ 都是在二次根式下，所以付出 $x$ 倍的成果，最终只能获得 $\sqrt{x}$ 倍的收益，这显然是亏本的； 综上，在已知情况下，是可以有效避免攻击的。 总结 通过这次对 LP Token 价格计算的研究，并且对延时喂价漏洞的探求，了解了 LP 抵押使用一般方式计算带来的风险。计算价格的需求，一定要根据所做业务的类型，谨慎选择。 参考链接 Alpha Finance 关于获取公平 LP 价格的方法 一种安全的 LP 价格的获取方法曾汨 欢迎大家使用我个人研发的 Cakebot Finance 来体验去中心化 DAPP 挖矿。]]></summary></entry><entry><title type="html">Liquidity Providers 的数学原理</title><link href="https://kongxincai.net/2021/04/25/defi-lp-math.html" rel="alternate" type="text/html" title="Liquidity Providers 的数学原理" /><published>2021-04-25T00:00:00-08:00</published><updated>2021-04-25T00:00:00-08:00</updated><id>https://kongxincai.net/2021/04/25/defi-lp-math</id><content type="html" xml:base="https://kongxincai.net/2021/04/25/defi-lp-math.html"><![CDATA[<p>最近半年多一直在币圈玩 DeFi，这半年来增加了好多十分神奇的玩法，这都要得益于 Uniswap 的创新。</p>
+
+<p>看了这么多 Up 主的视频，讲的都云里雾里的，其实就是简单的几个公式，这篇文章我们来从头推导一下无偿损失的公式，来计算一下<strong>为什么当单币种价格有强烈浮动的时候，为什么会有无偿损失</strong>。</p>
+
+<h1 id="liquidity-providers-代币是什么">Liquidity Providers 代币是什么</h1>
+
+<p>流动性提供者代币（Liquidity Providers Token），也就是我们经常说的 LP 代币，这是一个什么东西呢？</p>
+
+<p>可以举一个最简单的例子，加入我们现在使用 BUSD 来购买 BNB，我们经常使用交易所的朋友们知道，交易所的挣钱模式是<strong>用户在交易时从交易金额中进行抽成来赚取手续费</strong>。</p>
+
+<p>其实很多中心化交易所（CEX）看到了盈利模式中的用户激励机制，那就是你如果邀请别人试用我们的产品，那么<strong>交易所在进行手续费抽成的过程中，也会将其再次抽成，作为那些 KOL 的奖励</strong>。</p>
+
+<p>而 Uniswap 这种去中心化交易所（DEX）就无法利用这种机制进行用户增长，因为所有的 DEX 没有用户注册机制，只需要连接用户的数字钱包即可完成交易。</p>
+
+<p>于是，Uniswap 就设计了另外一种激励模式，<strong>AMM（Automated Market Maker） - 自动化做市商模型</strong>。关于自动化做市商这里我们不详细的去讲，我们只要了解以下几个动作代表了什么意思就可以（这里使用 BNB 和 BUSD 交易以及 PancakeSwap 平台为例）：</p>
+
+<ol>
+  <li><strong>用 BNB 和 BUSD 换取 BNB-BUSD LP 代币</strong>：相当于你为 BNB 和 BUSD 流动池增加了代币。并且你获得了 BNB ⇄ BUSD 这个交易中的对应代币份额的抽成奖励占比；
+    <ol>
+      <li>这里就体现了 DEX 通过换取流动性证明，从而完成了一种激励模式；</li>
+      <li>PancakeSwap 在文档中提到，<strong>其 0.2% 的交易手续费当中，有 0.17% 的比例是提供给 LP 持有者的抽成奖励的</strong>。剩下的 0.03% 是平台的利润。具体规则可以查看<a href="https://docs.pancakeswap.finance/products/pancakeswap-exchange/trade">官方文档</a>。</li>
+    </ol>
+  </li>
+  <li><strong>BNB-BUSD 代币挖矿</strong>：当我们拿到 BNB-BUSD LP Token 之后，我们可以继续放在 PancakeSwap 的 Farms 中进行挖矿（其年化 APR 如以下截图所示）。</li>
+</ol>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/farms.png" alt="" /></p>
+
+<p>所以，看到这里你应该也明白这个 LP Token 是个什么东西了。他其实就是你<strong>提供的流动性证明</strong>代币，<strong>持有这个代币你就可以获得对应币对在交易过程中手续费的抽成</strong>。</p>
+
+<p>并且<strong>平台为了让你去填充代币池，通过质押 LP 代币挖矿的形式来吸引你去兑换，这样你也获得了收益，平台也获得了交易币对的深度池</strong>。</p>
+
+<h1 id="无偿损失是如何来的">无偿损失是如何来的？</h1>
+
+<p>有很多朋友应该是被 LP 代币挖矿的高收益吸引过来的。在一顿操作之后开始了挖矿，但是在 Remove LP 代币的时候，发现自己损失了好多 U。本来是来挖矿赚收益的，最后矿没挖多少，自己却亏了好多。这是怎么一回事呢？</p>
+
+<p>这种情况就是我们所说的** IL 无偿损失（Impermanet Loss）<strong>，用来指</strong>在流动性代币价值与持有两种现货资产相比产生负收益的结果**。简单来说就是亏钱了！</p>
+
+<p>为什么会产生无偿损失，我们以为 BNB 和 BUSD 提供流动性为例，来具体的描述一个场景。在例子之前我们需要了解以下变量：</p>
+
+<h2 id="常数-kconstant-product">常数 K（Constant Product）</h2>
+
+<p>常数 K 因子是用来为交易定价的一种方式，用这个常数来保证币对池子的价值平衡。
+\(K = A \times B\)
+这里面 \(A\)  和 \(B\)  是两个 Token 的数量。这里面我们用 BNB 和 BUSD 来举例子：</p>
+
+<ul>
+  <li>A - BNB 的数量</li>
+  <li>B - BUSD 的数量</li>
+</ul>
+
+<p>A 和 B 带入到我们的例子中，后面用 \(C_{BNB}\) 和 \(C_{BUSD}\) 代替
+\(K_{BNB-BUSD} = C_{BNB} \times C_{BUSD}\)</p>
+
+<h2 id="定价-ptoken-price">定价 P（Token Price）</h2>
+
+<p>这个是 Uniswap 中对于 LP 比对的一个条件，就是要保证当前配对时，币对中两个币的 U 本位价值相同。在这个例子中，我们引入 BNB 此时的价格 \(P_{BNB}\)  以及 BUSD 的价格 \(P_{BUSD}\)。此时我们可以得到等式：
+\(P_{BNB} \times C_{BNB} = P_{BUSD} \times C_{BUSD}\)
+由于我们的 BUSD 其实是和 $ 锚定的，那么其实 \(P_{BUSD} = 1\)，所以有以下式子：
+\(P_{BNB} \times C_{BNB} = C_{BUSD}\)
+\(P_{BNB} = \frac{C_{BUSD}}{C_{BNB}}\)</p>
+
+<h2 id="数量公式">数量公式</h2>
+
+<p>我们通过上述公式来推出两个代币的定价 P 的公式：</p>
+
+\[\begin{cases}
+C_{BNB} = \sqrt{\frac{K_{BNB-BUSD}}{P_{BNB}}} \\
+C_{BUSD} = \sqrt{K_{BNB-BUSD} \times P_{BNB}}
+\end{cases}\]
+
+<p>如此，我们就可以通过常数 K 以及当前的币价来推导我们代币的数量了。接下来我们来看一个实际的场景，来直接感受一下无偿损失。</p>
+
+<h2 id="实际场景">实际场景</h2>
+
+<p>假如，我们在 <strong>1 BNB = 500 BUSD 的时候，组了一组 LP</strong> 。我们拿出了 20 个 BNB 和 10000 个 BUSD 进行 LP 流动性提供代币兑换。此时我们得到了这几个变量：</p>
+
+\[\begin{cases}
+P_{BNB} = 500 \\
+P_{BUSD} = 1 \\
+K = C_{BNB} \times C_{BUSD} = 2 \times 10^5
+\end{cases}\]
+
+<p>并且，我们保证此时的 K 也是后续所有情况下的常数 K，即组完 LP 代币后即时生效的常数。</p>
+
+<p>过了 10 天，BNB 涨价了，<strong>当前价格为 1 BNB = 550 BUSD 了</strong>。随之我们的价格也变成了如下关系：</p>
+
+\[\begin{cases}
+P_{BNB} = 550 \\
+P_{BUSD} = 1
+\end{cases}\]
+
+<p>我们带入到之前数量公式来计算此时 LP Token 等值的代币个数：</p>
+
+\[\begin{split}
+
+C'_{BNB} &amp;= \sqrt{\frac{K_{BNB-BUSD}}{P_{BNB}}} \\
+&amp; = \sqrt{\frac{2 \times 10^5}{550}} \\
+&amp; \approx 19.069 \ BNB\\
+C'_{BUSD} &amp;= \sqrt{K_{BNB-BUSD} \times P_{BNB}}  \\
+&amp; = \sqrt{2 \times 10^5 \times 550} \\
+&amp; \approx 10488.09\ BUSD
+\end{split}\]
+
+<p>在 BNB 涨价到 550 BUSD 数量到时候，我们发现等值的 LP Token 兑换<strong>只能换回 19.069 个 BNB 和 10488.09 个 BUSD</strong>。如果我们来换算成 BUSD 作为单位来对比一下前后收益：</p>
+
+<ul>
+  <li>情况一：就是上述情况，我们持有来一定数量的 LP 代币，接触流动性后全部折算成 BUSD 可以得到以下结果：</li>
+</ul>
+
+\[\begin{split}
+
+V_1 &amp; = 19.069 \times 550 + 10488.09 = 20976.04 \ BUSD
+
+\end{split}\]
+
+<ul>
+  <li>情况二：如果我们持续持有 20 个 BNB 和 10000 个 BUSD，那么此时我们折算成 BUSD 可以得到以下结果：</li>
+</ul>
+
+<p>\(V_2 = 20 \times 550 + 10000 = 21000\ BUSD\)
+<strong>经过以上分析，我们是可以看到如果我们持有 LP 代币不进行任何理财操作，其实我们组了 LP Token 后是会亏 \(21000 - 20976.04 = 23.96 \ BUSD\)的。</strong>
+**</p>
+
+<h1 id="相关补充">相关补充</h1>
+
+<h2 id="lp-token-代币数量计算">LP Token 代币数量计算</h2>
+
+<p>其实 LP Token 也是一种代币，它也拥有自己的合约地址。比如 Pancakeswap 上的 BNB-BUSD LP 代币合约地址 <code class="language-plaintext highlighter-rouge">0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16</code> 。是代币肯定就有一个方式来计算数量，这里 Pancakeswap 和 Uniswap 的计算方式一样，采用以下公式：</p>
+
+\[C_{BNB-BUSD\ LP} = \sqrt{C_{BNB}\times C_{BUSD}}\]
+
+<p>所以，当我们用 20 个 BNB 和 10000 个 BUSD 兑换 LP 代币的时候，我们会获得大约 447.21 个 LP Token。</p>
+
+<h2 id="简易的无偿损失表">简易的无偿损失表</h2>
+
+<p>这个我下一篇文会具体的推演一下如何决策以及如何与收益来共同计算。这里先引用 <a href="https://pintail.medium.com/uniswap-a-good-deal-for-liquidity-providers-104c0b6816f2">「Uniswap: A Good Deal for Liquidity Providers?」</a>这篇文章中给出的结论：</p>
+
+<ul>
+  <li>a <strong>1.25x</strong> price change results in a <strong>0.6%</strong> loss relative to HODL</li>
+  <li>a <strong>1.50x</strong> price change results in a <strong>2.0%</strong> loss relative to HODL</li>
+  <li>a <strong>1.75x</strong> price change results in a <strong>3.8%</strong> loss relative to HODL</li>
+  <li>a <strong>2x</strong> price change results in a <strong>5.7%</strong> loss relative to HODL</li>
+  <li>a <strong>3x</strong> price change results in a <strong>13.4%</strong> loss relative to HODL</li>
+  <li>a <strong>4x</strong> price change results in a <strong>20.0%</strong> loss relative to HODL</li>
+  <li>a <strong>5x</strong> price change results in a <strong>25.5%</strong> loss relative to HODL</li>
+</ul>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/lp_function_graph.png" alt="Losses/Price Change Function" /></p>
+
+<h1 id="写在最后">写在最后</h1>
+
+<p>DeFi 是一个金融游戏，如果你什么也不做研究并且什么也不去动手计算，那么永远都是韭菜。所以希望大家对于有趣的项目，先<strong>做好研究</strong>以及<strong>风险评估</strong>，在去玩耍。</p>
+
+<blockquote>
+  <p>欢迎大家使用我个人研发的 <a href="https://cakebot.finance/">Cakebot Finance</a> 来体验去中心化 DAPP 挖矿。</p>
+</blockquote>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="Blockchain" /><category term="DeFi" /><summary type="html"><![CDATA[最近半年多一直在币圈玩 DeFi，这半年来增加了好多十分神奇的玩法，这都要得益于 Uniswap 的创新。 看了这么多 Up 主的视频，讲的都云里雾里的，其实就是简单的几个公式，这篇文章我们来从头推导一下无偿损失的公式，来计算一下为什么当单币种价格有强烈浮动的时候，为什么会有无偿损失。 Liquidity Providers 代币是什么 流动性提供者代币（Liquidity Providers Token），也就是我们经常说的 LP 代币，这是一个什么东西呢？ 可以举一个最简单的例子，加入我们现在使用 BUSD 来购买 BNB，我们经常使用交易所的朋友们知道，交易所的挣钱模式是用户在交易时从交易金额中进行抽成来赚取手续费。 其实很多中心化交易所（CEX）看到了盈利模式中的用户激励机制，那就是你如果邀请别人试用我们的产品，那么交易所在进行手续费抽成的过程中，也会将其再次抽成，作为那些 KOL 的奖励。 而 Uniswap 这种去中心化交易所（DEX）就无法利用这种机制进行用户增长，因为所有的 DEX 没有用户注册机制，只需要连接用户的数字钱包即可完成交易。 于是，Uniswap 就设计了另外一种激励模式，AMM（Automated Market Maker） - 自动化做市商模型。关于自动化做市商这里我们不详细的去讲，我们只要了解以下几个动作代表了什么意思就可以（这里使用 BNB 和 BUSD 交易以及 PancakeSwap 平台为例）： 用 BNB 和 BUSD 换取 BNB-BUSD LP 代币：相当于你为 BNB 和 BUSD 流动池增加了代币。并且你获得了 BNB ⇄ BUSD 这个交易中的对应代币份额的抽成奖励占比； 这里就体现了 DEX 通过换取流动性证明，从而完成了一种激励模式； PancakeSwap 在文档中提到，其 0.2% 的交易手续费当中，有 0.17% 的比例是提供给 LP 持有者的抽成奖励的。剩下的 0.03% 是平台的利润。具体规则可以查看官方文档。 BNB-BUSD 代币挖矿：当我们拿到 BNB-BUSD LP Token 之后，我们可以继续放在 PancakeSwap 的 Farms 中进行挖矿（其年化 APR 如以下截图所示）。 所以，看到这里你应该也明白这个 LP Token 是个什么东西了。他其实就是你提供的流动性证明代币，持有这个代币你就可以获得对应币对在交易过程中手续费的抽成。 并且平台为了让你去填充代币池，通过质押 LP 代币挖矿的形式来吸引你去兑换，这样你也获得了收益，平台也获得了交易币对的深度池。 无偿损失是如何来的？ 有很多朋友应该是被 LP 代币挖矿的高收益吸引过来的。在一顿操作之后开始了挖矿，但是在 Remove LP 代币的时候，发现自己损失了好多 U。本来是来挖矿赚收益的，最后矿没挖多少，自己却亏了好多。这是怎么一回事呢？ 这种情况就是我们所说的** IL 无偿损失（Impermanet Loss），用来指在流动性代币价值与持有两种现货资产相比产生负收益的结果**。简单来说就是亏钱了！ 为什么会产生无偿损失，我们以为 BNB 和 BUSD 提供流动性为例，来具体的描述一个场景。在例子之前我们需要了解以下变量： 常数 K（Constant Product） 常数 K 因子是用来为交易定价的一种方式，用这个常数来保证币对池子的价值平衡。 \(K = A \times B\) 这里面 \(A\)  和 \(B\)  是两个 Token 的数量。这里面我们用 BNB 和 BUSD 来举例子： A - BNB 的数量 B - BUSD 的数量 A 和 B 带入到我们的例子中，后面用 \(C_{BNB}\) 和 \(C_{BUSD}\) 代替 \(K_{BNB-BUSD} = C_{BNB} \times C_{BUSD}\) 定价 P（Token Price） 这个是 Uniswap 中对于 LP 比对的一个条件，就是要保证当前配对时，币对中两个币的 U 本位价值相同。在这个例子中，我们引入 BNB 此时的价格 \(P_{BNB}\)  以及 BUSD 的价格 \(P_{BUSD}\)。此时我们可以得到等式： \(P_{BNB} \times C_{BNB} = P_{BUSD} \times C_{BUSD}\) 由于我们的 BUSD 其实是和 $ 锚定的，那么其实 \(P_{BUSD} = 1\)，所以有以下式子： \(P_{BNB} \times C_{BNB} = C_{BUSD}\) \(P_{BNB} = \frac{C_{BUSD}}{C_{BNB}}\) 数量公式 我们通过上述公式来推出两个代币的定价 P 的公式： \[\begin{cases} C_{BNB} = \sqrt{\frac{K_{BNB-BUSD}}{P_{BNB}}} \\ C_{BUSD} = \sqrt{K_{BNB-BUSD} \times P_{BNB}} \end{cases}\] 如此，我们就可以通过常数 K 以及当前的币价来推导我们代币的数量了。接下来我们来看一个实际的场景，来直接感受一下无偿损失。 实际场景 假如，我们在 1 BNB = 500 BUSD 的时候，组了一组 LP 。我们拿出了 20 个 BNB 和 10000 个 BUSD 进行 LP 流动性提供代币兑换。此时我们得到了这几个变量： \[\begin{cases} P_{BNB} = 500 \\ P_{BUSD} = 1 \\ K = C_{BNB} \times C_{BUSD} = 2 \times 10^5 \end{cases}\] 并且，我们保证此时的 K 也是后续所有情况下的常数 K，即组完 LP 代币后即时生效的常数。 过了 10 天，BNB 涨价了，当前价格为 1 BNB = 550 BUSD 了。随之我们的价格也变成了如下关系： \[\begin{cases} P_{BNB} = 550 \\ P_{BUSD} = 1 \end{cases}\] 我们带入到之前数量公式来计算此时 LP Token 等值的代币个数： \[\begin{split} C'_{BNB} &amp;= \sqrt{\frac{K_{BNB-BUSD}}{P_{BNB}}} \\ &amp; = \sqrt{\frac{2 \times 10^5}{550}} \\ &amp; \approx 19.069 \ BNB\\ C'_{BUSD} &amp;= \sqrt{K_{BNB-BUSD} \times P_{BNB}} \\ &amp; = \sqrt{2 \times 10^5 \times 550} \\ &amp; \approx 10488.09\ BUSD \end{split}\] 在 BNB 涨价到 550 BUSD 数量到时候，我们发现等值的 LP Token 兑换只能换回 19.069 个 BNB 和 10488.09 个 BUSD。如果我们来换算成 BUSD 作为单位来对比一下前后收益： 情况一：就是上述情况，我们持有来一定数量的 LP 代币，接触流动性后全部折算成 BUSD 可以得到以下结果： \[\begin{split} V_1 &amp; = 19.069 \times 550 + 10488.09 = 20976.04 \ BUSD \end{split}\] 情况二：如果我们持续持有 20 个 BNB 和 10000 个 BUSD，那么此时我们折算成 BUSD 可以得到以下结果： \(V_2 = 20 \times 550 + 10000 = 21000\ BUSD\) 经过以上分析，我们是可以看到如果我们持有 LP 代币不进行任何理财操作，其实我们组了 LP Token 后是会亏 \(21000 - 20976.04 = 23.96 \ BUSD\)的。 ** 相关补充 LP Token 代币数量计算 其实 LP Token 也是一种代币，它也拥有自己的合约地址。比如 Pancakeswap 上的 BNB-BUSD LP 代币合约地址 0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16 。是代币肯定就有一个方式来计算数量，这里 Pancakeswap 和 Uniswap 的计算方式一样，采用以下公式： \[C_{BNB-BUSD\ LP} = \sqrt{C_{BNB}\times C_{BUSD}}\] 所以，当我们用 20 个 BNB 和 10000 个 BUSD 兑换 LP 代币的时候，我们会获得大约 447.21 个 LP Token。 简易的无偿损失表 这个我下一篇文会具体的推演一下如何决策以及如何与收益来共同计算。这里先引用 「Uniswap: A Good Deal for Liquidity Providers?」这篇文章中给出的结论： a 1.25x price change results in a 0.6% loss relative to HODL a 1.50x price change results in a 2.0% loss relative to HODL a 1.75x price change results in a 3.8% loss relative to HODL a 2x price change results in a 5.7% loss relative to HODL a 3x price change results in a 13.4% loss relative to HODL a 4x price change results in a 20.0% loss relative to HODL a 5x price change results in a 25.5% loss relative to HODL 写在最后 DeFi 是一个金融游戏，如果你什么也不做研究并且什么也不去动手计算，那么永远都是韭菜。所以希望大家对于有趣的项目，先做好研究以及风险评估，在去玩耍。 欢迎大家使用我个人研发的 Cakebot Finance 来体验去中心化 DAPP 挖矿。]]></summary></entry><entry><title type="html">二手房增值税分析 - 首付与差额</title><link href="https://kongxincai.net/2020/09/23/buy-big-house-in-sh-2.html" rel="alternate" type="text/html" title="二手房增值税分析 - 首付与差额" /><published>2020-09-23T00:00:00-08:00</published><updated>2020-09-23T00:00:00-08:00</updated><id>https://kongxincai.net/2020/09/23/buy-big-house-in-sh-2</id><content type="html" xml:base="https://kongxincai.net/2020/09/23/buy-big-house-in-sh-2.html"><![CDATA[<blockquote>
+  <p>我给自己定了一个将近 700 天的计划，这就是在上海买房定居。于是开启了研究购房政策、研究小区和板块、研究购房注意事项等一系列的调研和研究。我将这些笔记归档成文章，发表在公众号与大家分享。</p>
+</blockquote>
+
+<p><strong>今天距离购房还有 665 天。</strong></p>
+
+<p>虽然说二手房的价格便宜，但其实除了购房款以外，还有大大小小的多个税款。当我们累加上这些价格后才是最终的支出价格。</p>
+
+<p>这篇笔记<strong>仅适用于上海 2020 年购入二手房的相关政策，其他省份和城市都略有区别</strong>。</p>
+
+<p><strong>二手房交易中，这篇我们只关注增值税。</strong></p>
+
+<p>首先，我们先要了解几个概念。</p>
+
+<h1 id="普通住宅认定标准">普通住宅认定标准</h1>
+
+<p><strong>什么是普通住宅？</strong></p>
+
+<p>影响上海普通住宅认定标准的三个因素，一是<strong>总价</strong>，二是<strong>面积，</strong>三是<strong>圈层</strong>。</p>
+
+<p>首先，满足以下任意一行条件的即为普通住宅，反之则为非普通住宅：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>圈层</th>
+      <th>面积</th>
+      <th>总价</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>内环内</td>
+      <td>&lt; 140 平米</td>
+      <td>≤ 450 万元</td>
+    </tr>
+    <tr>
+      <td>内外环之间</td>
+      <td>&lt; 140 平米</td>
+      <td>≤ 310 万元</td>
+    </tr>
+    <tr>
+      <td>外环外</td>
+      <td>&lt; 140 平米</td>
+      <td>≤ 230 万元</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>知道了普通住宅的认定标准后有什么用呢？接下来就是关于普通和非普通的相关征税内容。</p>
+
+<h1 id="增值税及其附加税">增值税及其附加税</h1>
+
+<p>当所购房屋为<strong>普通住宅</strong>的时候，其增值税及其附加税按照下表为征收标准：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>年限</th>
+      <th>征收标准</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>&lt; 2 年</td>
+      <td>(税务核定价 ÷ 1.05) × (5% + 0.55%)</td>
+    </tr>
+    <tr>
+      <td>[2, 5) 年</td>
+      <td>免征</td>
+    </tr>
+    <tr>
+      <td>≥ 5 年</td>
+      <td>免征</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>对应的，<strong>非普通住宅</strong>有以下的标准：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>年限</th>
+      <th>征收标准</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>&lt; 2 年</td>
+      <td>(税务核定价 ÷ 1.05) × (5% + 0.55%)</td>
+    </tr>
+    <tr>
+      <td>[2, 5) 年</td>
+      <td>((税务核定价- 买入价格) ÷ 1.05) × (5% + 0.55%)</td>
+    </tr>
+    <tr>
+      <td>≥ 5 年</td>
+      <td>((税务核定价 - 买入价格) ÷ 1.05) × (5% + 0.55%)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>这里的税务核定价是什么？又是如何确定的呢？</p>
+
+<h2 id="税务核定价">税务核定价</h2>
+
+<p>税务核定价，又被大家称之为<strong>二手房过户指导价</strong>。它是由当地税务部门确定的，核定价存在的意义主要是“兜底”，简单来说就是当买卖双方的网签价格低于核定价时，税务部门将不再根据<strong>网签价（也就是协商好的交易价格）</strong> 来确定税基，而是以核定价为标准来确定税基。</p>
+
+<p>所以你应该明白了，核定价明显就是为了对付“阴阳合同”的。是的，它本质上是为了保证税收。</p>
+
+<p>试想一下，如果买卖双方为了避税，网签价定为 1 元，那么这套房子就完全没有任何税费了。</p>
+
+<p>那么税务核定价格一般是多少呢？</p>
+
+<p>这个数据我在百度和谷歌也检索了很久，没有办法得到一组批量数据来做数据拟合。核定价格一般也不会对外公布，需要自己去税务机关咨询，也只能得到一个大概的数据。</p>
+
+<p>因为在确定房屋的核定价时，要参考地段、面积等诸多因素，所以这个是很难作出表达式来加权表示的。</p>
+
+<p><strong>由于税务核定价一般是用来“兜底”的，所以我们在这篇文章里做计算的时候，假设税务核定价是网签价格的 85% 来计算。</strong></p>
+
+<h2 id="核定价影响贷款额度">核定价影响贷款额度</h2>
+
+<p>虽然在「公积金贷买房能省多少钱」一文中，我们假定了任意房子的总价格 35% 首付，65% 贷款。</p>
+
+<p>但是贷款额度参考的基数其实是<strong>税务核定价格</strong>，这也就意味着 <strong>往往购买二手房，你的首付是要多交一笔的，是大于 35% 的</strong> 。这是为什么？我们简单做一下计算：</p>
+
+<p>假设我们想购买的二手房<strong>网签总价为 $T_{网签}$ 元</strong> ，且**假设税务核定价是网签价格的 85% **，此时税务核定价格 ：</p>
+
+\[\begin{equation}
+\left\{
+\begin{array}{lr}
+T_{贷款额度} = T_{核定} \times 65\% \notag \\
+T_{核定} = T_{网签} \times 85\% \notag \\
+\end{array} \\
+\right.
+\end{equation}\]
+
+<p>带入后我们可以推导出：</p>
+
+\[\begin{equation}
+\left\{
+\begin{array}{lr}
+T_{贷款额度} = T_{网签} \times 55.25\%  \notag \\
+T_{首付} = 1-55.25\% = 44.75\% \notag \\
+\end{array} 
+\right.
+\end{equation}\]
+
+<p>根据我们的假设条件，我们发现首付我们<strong>必须要凑够 44.75% 价格的首付，而贷款额度只有 55.25%</strong>。</p>
+
+<p><strong>所以很多人都说，因为买了二手房，所以首付要高一些，将近 50%。其实就是上面这个原因。</strong></p>
+
+<h1 id="增值税影响下的购房决策分析">增值税影响下的购房决策分析</h1>
+
+<p>同样的，我们假设<strong>网签总价为 $T_{网签}$ 元</strong>，且 <strong>假设税务核定价是网签价格的 85%。</strong> 另外，我从知乎上检索到这么一组数据 「<a href="https://zhuanlan.zhihu.com/p/75780115" title="2015-2019 年上海各区房价涨跌情况">2015-2019 年上海各区房价涨跌情况</a>」。其中我需要用到各个区的二手房年化平均增长率，如下表总结：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>区域</th>
+      <th>二手房价年化平均涨幅</th>
+      <th>区域</th>
+      <th>二手房价年化平均涨幅</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>长宁</td>
+      <td>13.30%</td>
+      <td>静安（包含老闸北）</td>
+      <td>16.04%</td>
+    </tr>
+    <tr>
+      <td>虹口</td>
+      <td>15.79%</td>
+      <td>闵行</td>
+      <td>14.02%</td>
+    </tr>
+    <tr>
+      <td>黄浦</td>
+      <td>15.99%</td>
+      <td>浦东（包含老南汇）</td>
+      <td>12.55%</td>
+    </tr>
+    <tr>
+      <td>普陀</td>
+      <td>15.81%</td>
+      <td>徐汇</td>
+      <td>13.55%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>由上述数据我们可以计算出，上海二手房平均年化涨幅为 <strong>14.63%</strong>。有了涨幅数据之后，我们就可以求出差额的表达式，即 $T_{差额} = (税务核定价- 买入价格)$。当然，这里我们还要假设房屋年限为 $y$ 年</p>
+
+\[\begin{align}
+T_{差额} &amp;= T_{核定价} - T_{买入价格} \notag \\
+\ &amp;= 0.85T_{网签} - T_{网签} \div (1 + 0.1463)^y \notag \\
+\end{align}\]
+
+<p>接下来我们来计算增值税的表达式：</p>
+
+<p>当房屋是<strong>普通住宅</strong>时：</p>
+
+\[\begin{equation}
+T_{增值税} = \left\{
+\begin{aligned}
+&amp; \frac{T_{核定价}}{1.05} \times 5.55\% = 0.04497 · T_{网签} &amp;&amp; (y &lt; 2)\\
+&amp; 0 &amp;&amp; (y \geq 2)
+\end{aligned} \\
+\right. \notag \\
+\end{equation}\]
+
+<p>当房屋是<strong>非普通住宅</strong>时：</p>
+
+\[\begin{equation}
+T_{增值税} = \left\{
+\begin{aligned}
+&amp; 0.04497 · T_{网签} &amp;&amp; (y &lt; 2) \notag \\ \\
+&amp; (0.85T_{网签} - \frac{T_{网签}}{(1 + 0.1463)^y}) \times 0.0529 &amp;&amp; (y \geq 2) \notag \\ 
+\end{aligned}
+\right. \notag \\
+\end{equation}\]
+
+<p>我们可以看到，<strong>当年限小于 2 年的时候，无论是普通住宅还是非普通住宅，其增值税都要支付将近 4.5% 的增值税。且是否是普通住宅对增值税毫无影响。</strong></p>
+
+<p>当年限大于等于 5 年的时候，普通住宅是免征增值税的，而非普通住宅是与年限和网签总价有一定关系的。我们来分析一下。</p>
+
+<h2 id="非普通住宅的年限影响">非普通住宅的年限影响</h2>
+
+<p>由于年份 $y$ 是离散的，所以我们将其投影在每一条折线上。以网签价格为横轴变量，来观察增值税与网签价的关系图：</p>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/guardiav2-364823c4cf605b91cf8d8a57c6fe7844_1440w.jpg" alt="" /></p>
+
+<p>我们可以得到以下结论：</p>
+
+<ol>
+  <li><strong>房龄越高，其所得税缴纳越多</strong>。这也是可以理解的，因为随着房价的上涨，其差额会逐渐变大。</li>
+  <li><strong>所得税的增长幅度与年限呈现下降趋势</strong>。随着年限增高，增长差值逐渐降低。</li>
+</ol>
+
+<h2 id="增值税占比">增值税占比</h2>
+
+<p>有没有什么方法来评估增值税最低的选择策略呢？我个人的想法是使用所占比例来考量。以下是我想的一个方法：</p>
+
+\[P_{增值税所占比例} \approx \frac{T_{增值税}}{T_{网签价} + T_{增值税}}\]
+
+<p>为什么这里是约等于呢？因为最后你需要支出的价格除了网签价格外，<strong>不仅只有增值税，还有其他的各种税款。</strong> 这里仅仅使用增值税来当作基数，可以放大增值税的比重，更能体现问题。</p>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/guardiav2-2c8a663f4f74399c25d33fe351b292bc_1440w.jpg" alt="" /></p>
+
+<p>作出图像我们可以发现，当我们购买“低龄”的房子，其所得税所占比例是更底的，<strong>5 年的二手房其所得税所占比例均值是 1.79%</strong>。</p>
+
+<p>于是乎我们可以大致的计算出房龄与所得税所占比例的大致关系：</p>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/guardia1600825890934-a0417c8e-0029-4533-9068-d4a29a72e650.png" alt="" /></p>
+
+<p>那么我们最好的策略是要选择最新的房子吗？其实并不是这样的，因为随着年限的增长，其单价也在逐渐升高。</p>
+
+<p><strong>换句话说，当我总价固定后，随着房龄的降低，其面积是越来越小的。房屋面积是和我们的需求息息相关的。</strong></p>
+
+<p>所以当我们做买房策略的时候，我们需要先确定<strong>需求面积</strong>和我们<strong>所支出的总价</strong>，然后尽可能的去购买新房就好了。</p>
+
+<p>由于所得税在这里只能说明部分问题，具体的问题我将在后续的文中来具体分析。</p>
+
+<h1 id="总结">总结</h1>
+
+<ol>
+  <li>购买二手房时，<strong>首付高一些，将近 50%。</strong> 其原因是因为税务核算价往往偏低，从而拉低了贷款比重，进而使得首付提高；</li>
+  <li>当购买非普通住宅时，<strong>房龄越高，其所得税缴纳越多</strong>。因为随着房价的上涨，其差额会逐渐变大。</li>
+  <li><strong>所得税的增长幅度与年限呈现下降趋势</strong>。随着年限增高，增长差值逐渐降低。</li>
+  <li>确定<strong>需求面积</strong>和<strong>所支出的总价</strong>，尽可能的去购买新房。这与我们的正常认知也是相同的。</li>
+</ol>
+
+<h1 id="相关数据分析代码">相关数据分析代码</h1>
+
+<p>以下代码由我个人编写，可在 Jupyter Notebook 环境下直接运行。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+网签价与增值税
+"""</span>
+<span class="c1"># encoding=utf-8
+</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">IPython.core.pylabtools</span> <span class="kn">import</span> <span class="n">figsize</span> <span class="c1"># import figsize
+#figsize(12.5, 4) # 设置 figsize
+</span><span class="n">plt</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">'savefig.dpi'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span> <span class="c1">#图片像素
+</span><span class="n">plt</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">'figure.dpi'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span> <span class="c1">#分辨率
+</span>
+<span class="c1"># 总价
+</span><span class="n">ths</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">125000</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)]</span>
+
+<span class="c1"># 年限
+</span><span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">21</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ys</span><span class="p">:</span>
+    <span class="c1"># 增值税计算
+</span>    <span class="n">trs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">th</span> <span class="ow">in</span> <span class="n">ths</span><span class="p">:</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.85</span> <span class="o">*</span> <span class="n">th</span> <span class="o">-</span> <span class="n">th</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.1463</span><span class="p">)</span> <span class="o">**</span> <span class="n">y</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.0529</span>
+        <span class="n">trs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+        
+    <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ths</span><span class="p">,</span> <span class="n">trs</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s">年'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'网签价/千万元'</span><span class="p">)</span> <span class="c1">#X轴标签
+</span><span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"增值税/元"</span><span class="p">)</span> <span class="c1">#Y轴标签
+</span>
+
+<span class="s">"""
+网签价与增值税占比
+"""</span>
+<span class="c1"># 年限
+</span><span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">21</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ys</span><span class="p">:</span>
+    <span class="c1"># 增值税计算
+</span>    <span class="n">trs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">th</span> <span class="ow">in</span> <span class="n">ths</span><span class="p">:</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.85</span> <span class="o">*</span> <span class="n">th</span> <span class="o">-</span> <span class="n">th</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.1463</span><span class="p">)</span> <span class="o">**</span> <span class="n">y</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.0529</span>
+        <span class="n">trs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">tr</span> <span class="o">/</span> <span class="p">(</span><span class="n">th</span> <span class="o">+</span> <span class="n">tr</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">trs</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">trs</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ths</span><span class="p">,</span> <span class="n">trs</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s">年'</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ths</span><span class="p">,</span> <span class="n">trs</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">'*'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s">年'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'网签价/千万元'</span><span class="p">)</span> <span class="c1">#X轴标签
+</span><span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"所得税占总支出比例"</span><span class="p">)</span> <span class="c1">#Y轴标签
+</span>
+<span class="s">"""
+房龄与增值税占比
+"""</span>
+<span class="n">p</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">0.017910502320842965</span><span class="p">,</span>
+    <span class="mf">0.021189641628359904</span><span class="p">,</span>
+    <span class="mf">0.024032438906425032</span><span class="p">,</span>
+    <span class="mf">0.026498963556469416</span><span class="p">,</span>
+    <span class="mf">0.028640531033586977</span><span class="p">,</span>
+    <span class="mf">0.030501094013867885</span><span class="p">,</span>
+    <span class="mf">0.032118385667131544</span><span class="p">,</span>
+    <span class="mf">0.03352486519307519</span><span class="p">,</span>
+    <span class="mf">0.034748504347376426</span><span class="p">,</span>
+    <span class="mf">0.035813445129716175</span><span class="p">,</span>
+    <span class="mf">0.03674055234381547</span><span class="p">,</span>
+    <span class="mf">0.03754787981470654</span><span class="p">,</span>
+    <span class="mf">0.038251065262737784</span><span class="p">,</span>
+    <span class="mf">0.03886366589974932</span><span class="p">,</span>
+    <span class="mf">0.03939744452077101</span><span class="p">,</span>
+    <span class="mf">0.039862614060287876</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">'o'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'增值税占总支出比例'</span><span class="p">)</span> <span class="c1">#X轴标签
+</span><span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"房子年限/年"</span><span class="p">)</span> <span class="c1">#Y轴标签
+</span></code></pre></div></div>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="冬瓜买房笔记" /><category term="数学建模" /><summary type="html"><![CDATA[我给自己定了一个将近 700 天的计划，这就是在上海买房定居。于是开启了研究购房政策、研究小区和板块、研究购房注意事项等一系列的调研和研究。我将这些笔记归档成文章，发表在公众号与大家分享。 今天距离购房还有 665 天。 虽然说二手房的价格便宜，但其实除了购房款以外，还有大大小小的多个税款。当我们累加上这些价格后才是最终的支出价格。 这篇笔记仅适用于上海 2020 年购入二手房的相关政策，其他省份和城市都略有区别。 二手房交易中，这篇我们只关注增值税。 首先，我们先要了解几个概念。 普通住宅认定标准 什么是普通住宅？ 影响上海普通住宅认定标准的三个因素，一是总价，二是面积，三是圈层。 首先，满足以下任意一行条件的即为普通住宅，反之则为非普通住宅： 圈层 面积 总价 内环内 &lt; 140 平米 ≤ 450 万元 内外环之间 &lt; 140 平米 ≤ 310 万元 外环外 &lt; 140 平米 ≤ 230 万元 知道了普通住宅的认定标准后有什么用呢？接下来就是关于普通和非普通的相关征税内容。 增值税及其附加税 当所购房屋为普通住宅的时候，其增值税及其附加税按照下表为征收标准： 年限 征收标准 &lt; 2 年 (税务核定价 ÷ 1.05) × (5% + 0.55%) [2, 5) 年 免征 ≥ 5 年 免征 对应的，非普通住宅有以下的标准： 年限 征收标准 &lt; 2 年 (税务核定价 ÷ 1.05) × (5% + 0.55%) [2, 5) 年 ((税务核定价- 买入价格) ÷ 1.05) × (5% + 0.55%) ≥ 5 年 ((税务核定价 - 买入价格) ÷ 1.05) × (5% + 0.55%) 这里的税务核定价是什么？又是如何确定的呢？ 税务核定价 税务核定价，又被大家称之为二手房过户指导价。它是由当地税务部门确定的，核定价存在的意义主要是“兜底”，简单来说就是当买卖双方的网签价格低于核定价时，税务部门将不再根据网签价（也就是协商好的交易价格） 来确定税基，而是以核定价为标准来确定税基。 所以你应该明白了，核定价明显就是为了对付“阴阳合同”的。是的，它本质上是为了保证税收。 试想一下，如果买卖双方为了避税，网签价定为 1 元，那么这套房子就完全没有任何税费了。 那么税务核定价格一般是多少呢？ 这个数据我在百度和谷歌也检索了很久，没有办法得到一组批量数据来做数据拟合。核定价格一般也不会对外公布，需要自己去税务机关咨询，也只能得到一个大概的数据。 因为在确定房屋的核定价时，要参考地段、面积等诸多因素，所以这个是很难作出表达式来加权表示的。 由于税务核定价一般是用来“兜底”的，所以我们在这篇文章里做计算的时候，假设税务核定价是网签价格的 85% 来计算。 核定价影响贷款额度 虽然在「公积金贷买房能省多少钱」一文中，我们假定了任意房子的总价格 35% 首付，65% 贷款。 但是贷款额度参考的基数其实是税务核定价格，这也就意味着 往往购买二手房，你的首付是要多交一笔的，是大于 35% 的 。这是为什么？我们简单做一下计算： 假设我们想购买的二手房网签总价为 $T_{网签}$ 元 ，且**假设税务核定价是网签价格的 85% **，此时税务核定价格 ： \[\begin{equation} \left\{ \begin{array}{lr} T_{贷款额度} = T_{核定} \times 65\% \notag \\ T_{核定} = T_{网签} \times 85\% \notag \\ \end{array} \\ \right. \end{equation}\] 带入后我们可以推导出： \[\begin{equation} \left\{ \begin{array}{lr} T_{贷款额度} = T_{网签} \times 55.25\% \notag \\ T_{首付} = 1-55.25\% = 44.75\% \notag \\ \end{array} \right. \end{equation}\] 根据我们的假设条件，我们发现首付我们必须要凑够 44.75% 价格的首付，而贷款额度只有 55.25%。 所以很多人都说，因为买了二手房，所以首付要高一些，将近 50%。其实就是上面这个原因。 增值税影响下的购房决策分析 同样的，我们假设网签总价为 $T_{网签}$ 元，且 假设税务核定价是网签价格的 85%。 另外，我从知乎上检索到这么一组数据 「2015-2019 年上海各区房价涨跌情况」。其中我需要用到各个区的二手房年化平均增长率，如下表总结： 区域 二手房价年化平均涨幅 区域 二手房价年化平均涨幅 长宁 13.30% 静安（包含老闸北） 16.04% 虹口 15.79% 闵行 14.02% 黄浦 15.99% 浦东（包含老南汇） 12.55% 普陀 15.81% 徐汇 13.55% 由上述数据我们可以计算出，上海二手房平均年化涨幅为 14.63%。有了涨幅数据之后，我们就可以求出差额的表达式，即 $T_{差额} = (税务核定价- 买入价格)$。当然，这里我们还要假设房屋年限为 $y$ 年 \[\begin{align} T_{差额} &amp;= T_{核定价} - T_{买入价格} \notag \\ \ &amp;= 0.85T_{网签} - T_{网签} \div (1 + 0.1463)^y \notag \\ \end{align}\] 接下来我们来计算增值税的表达式： 当房屋是普通住宅时： \[\begin{equation} T_{增值税} = \left\{ \begin{aligned} &amp; \frac{T_{核定价}}{1.05} \times 5.55\% = 0.04497 · T_{网签} &amp;&amp; (y &lt; 2)\\ &amp; 0 &amp;&amp; (y \geq 2) \end{aligned} \\ \right. \notag \\ \end{equation}\] 当房屋是非普通住宅时： \[\begin{equation} T_{增值税} = \left\{ \begin{aligned} &amp; 0.04497 · T_{网签} &amp;&amp; (y &lt; 2) \notag \\ \\ &amp; (0.85T_{网签} - \frac{T_{网签}}{(1 + 0.1463)^y}) \times 0.0529 &amp;&amp; (y \geq 2) \notag \\ \end{aligned} \right. \notag \\ \end{equation}\] 我们可以看到，当年限小于 2 年的时候，无论是普通住宅还是非普通住宅，其增值税都要支付将近 4.5% 的增值税。且是否是普通住宅对增值税毫无影响。 当年限大于等于 5 年的时候，普通住宅是免征增值税的，而非普通住宅是与年限和网签总价有一定关系的。我们来分析一下。 非普通住宅的年限影响 由于年份 $y$ 是离散的，所以我们将其投影在每一条折线上。以网签价格为横轴变量，来观察增值税与网签价的关系图： 我们可以得到以下结论： 房龄越高，其所得税缴纳越多。这也是可以理解的，因为随着房价的上涨，其差额会逐渐变大。 所得税的增长幅度与年限呈现下降趋势。随着年限增高，增长差值逐渐降低。 增值税占比 有没有什么方法来评估增值税最低的选择策略呢？我个人的想法是使用所占比例来考量。以下是我想的一个方法： \[P_{增值税所占比例} \approx \frac{T_{增值税}}{T_{网签价} + T_{增值税}}\] 为什么这里是约等于呢？因为最后你需要支出的价格除了网签价格外，不仅只有增值税，还有其他的各种税款。 这里仅仅使用增值税来当作基数，可以放大增值税的比重，更能体现问题。 作出图像我们可以发现，当我们购买“低龄”的房子，其所得税所占比例是更底的，5 年的二手房其所得税所占比例均值是 1.79%。 于是乎我们可以大致的计算出房龄与所得税所占比例的大致关系： 那么我们最好的策略是要选择最新的房子吗？其实并不是这样的，因为随着年限的增长，其单价也在逐渐升高。 换句话说，当我总价固定后，随着房龄的降低，其面积是越来越小的。房屋面积是和我们的需求息息相关的。 所以当我们做买房策略的时候，我们需要先确定需求面积和我们所支出的总价，然后尽可能的去购买新房就好了。 由于所得税在这里只能说明部分问题，具体的问题我将在后续的文中来具体分析。 总结 购买二手房时，首付高一些，将近 50%。 其原因是因为税务核算价往往偏低，从而拉低了贷款比重，进而使得首付提高； 当购买非普通住宅时，房龄越高，其所得税缴纳越多。因为随着房价的上涨，其差额会逐渐变大。 所得税的增长幅度与年限呈现下降趋势。随着年限增高，增长差值逐渐降低。 确定需求面积和所支出的总价，尽可能的去购买新房。这与我们的正常认知也是相同的。 相关数据分析代码 以下代码由我个人编写，可在 Jupyter Notebook 环境下直接运行。 """ 网签价与增值税 """ # encoding=utf-8 import numpy as np import math from matplotlib import pyplot import matplotlib.pyplot as plt from IPython.core.pylabtools import figsize # import figsize #figsize(12.5, 4) # 设置 figsize plt.rcParams['savefig.dpi'] = 300 #图片像素 plt.rcParams['figure.dpi'] = 300 #分辨率 # 总价 ths = [i * 125000 for i in range(1, 100)] # 年限 ys = [i for i in range(5, 21)] for y in ys: # 增值税计算 trs = [] for th in ths: tr = (0.85 * th - th / ((1 + 0.1463) ** y)) * 0.0529 trs.append(tr) plt.plot(ths, trs, label=f'{y}年') plt.legend() plt.margins(0) plt.subplots_adjust(bottom=0.10) plt.xlabel('网签价/千万元') #X轴标签 plt.ylabel("增值税/元") #Y轴标签 """ 网签价与增值税占比 """ # 年限 ys = [i for i in range(5, 21)] for y in ys: # 增值税计算 trs = [] for th in ths: tr = (0.85 * th - th / ((1 + 0.1463) ** y)) * 0.0529 trs.append(tr / (th + tr)) print(sum(trs) / len(trs)) if y &gt;= 10: plt.plot(ths, trs, label=f'{y}年') else: plt.plot(ths, trs, marker='*', label=f'{y}年') plt.legend() plt.margins(0) plt.subplots_adjust(bottom=0.10) plt.xlabel('网签价/千万元') #X轴标签 plt.ylabel("所得税占总支出比例") #Y轴标签 """ 房龄与增值税占比 """ p = [ 0.017910502320842965, 0.021189641628359904, 0.024032438906425032, 0.026498963556469416, 0.028640531033586977, 0.030501094013867885, 0.032118385667131544, 0.03352486519307519, 0.034748504347376426, 0.035813445129716175, 0.03674055234381547, 0.03754787981470654, 0.038251065262737784, 0.03886366589974932, 0.03939744452077101, 0.039862614060287876, ] plt.plot(p, y, marker='o') plt.legend() plt.margins(0) plt.xlabel('增值税占总支出比例') #X轴标签 plt.ylabel("房子年限/年") #Y轴标签]]></summary></entry><entry><title type="html">公积金贷买房能省多少钱</title><link href="https://kongxincai.net/2020/09/14/buy-big-house-in-sh-1.html" rel="alternate" type="text/html" title="公积金贷买房能省多少钱" /><published>2020-09-14T00:00:00-08:00</published><updated>2020-09-14T00:00:00-08:00</updated><id>https://kongxincai.net/2020/09/14/buy-big-house-in-sh-1</id><content type="html" xml:base="https://kongxincai.net/2020/09/14/buy-big-house-in-sh-1.html"><![CDATA[<blockquote>
+  <p>我给自己定了一个将近 700 天的计划，这就是在上海买房定居。于是开启了研究购房政策、研究小区和板块、研究购房注意事项等一系列的调研和研究。我将这些笔记归档成文章，发表在公众号与大家分享。</p>
+</blockquote>
+
+<p><strong>今天距离购房还有 675 天。</strong></p>
+
+<p>这篇文章来讨论使用公积金贷款买房的最大化省钱空间。<strong>以下讨论均针对于上海市</strong>。因为公积金贷款比商业贷款利率低了近两个点，所以公积金贷款也是购房者的首选。下面我来较为全面的记录一下公积金贷款的所有细节问题。</p>
+
+<h1 id="使用公积金贷款的条件">使用公积金贷款的条件</h1>
+
+<ol>
+  <li>购买上海市具有所有权的自住住房；</li>
+  <li>申请贷款前 6 个月连续正常缴存住房公积金；</li>
+  <li>借款人家庭没有尚未还清的公积金债务；</li>
+</ol>
+
+<h1 id="利率数据">利率数据</h1>
+
+<p>首先先给出公积金贷款的贷款利率（以下表内加粗为一般大家所需要关注的数据）：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">贷款年限</th>
+      <th style="text-align: left">首套房、二套房普通住宅（基准利率 - 2015.4.8 起开始执行）</th>
+      <th style="text-align: left">二套房非普通住宅（1.1 倍利率）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">五年以下（包含五年）</td>
+      <td style="text-align: left">2.75%</td>
+      <td style="text-align: left">3.025%</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">五年以上</td>
+      <td style="text-align: left"><strong>3.25%</strong></td>
+      <td style="text-align: left">3.575%</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="最高贷款额度">最高贷款额度</h1>
+
+<p>这里不讨论非普通住宅。</p>
+
+<ul>
+  <li>普通住宅：按所在地一般民用住宅建筑标准来建造的作为居住用途的房屋，目前多为多层住宅与高层住宅。</li>
+  <li>非普通住宅：非普通住宅一般指宅建筑面积较大或用作商业用途的房子。</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">所购住房</th>
+      <th style="text-align: left">首套房</th>
+      <th style="text-align: left">首套房</th>
+      <th style="text-align: left">二套房普通</th>
+      <th style="text-align: left">二套房普通</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">贷款家庭</td>
+      <td style="text-align: left">1 人贷款</td>
+      <td style="text-align: left"><strong>≥ 2 人贷款</strong></td>
+      <td style="text-align: left">1 人贷款</td>
+      <td style="text-align: left">≥ 2 人贷款</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">缴纳住房公积金最高可贷金额</td>
+      <td style="text-align: left">50 万</td>
+      <td style="text-align: left"><strong>100 万</strong></td>
+      <td style="text-align: left">50 万</td>
+      <td style="text-align: left">100 万</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">缴纳补充公积金最高可贷金额</td>
+      <td style="text-align: left">10 万</td>
+      <td style="text-align: left"><strong>20 万</strong></td>
+      <td style="text-align: left">10 万</td>
+      <td style="text-align: left">20 万</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">可贷金额总计</td>
+      <td style="text-align: left">60 万</td>
+      <td style="text-align: left"><strong>120 万</strong></td>
+      <td style="text-align: left">60 万</td>
+      <td style="text-align: left">120 万</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">首付比列</td>
+      <td style="text-align: left"><strong>≤ 90 平米，不低于 20%; ＞ 90 平米不低于 30%</strong></td>
+      <td style="text-align: left">同左</td>
+      <td style="text-align: left">不低于 30\%</td>
+      <td style="text-align: left">同左</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>这里面我们可以发现住房公积金和补充公积金是有个上限值，但是如何出自己的可贷公积金的数值呢？其实是有如下计算公式：假如我们另当前住房公积金账户余额是，补充公积金账户余额是，则最高可贷金额有如下关系：</p>
+
+\[\begin{cases}
+f(x, y)=40x+20y \\
+40x \leq 50 \times 10^{4} \\ 
+20y \leq 10 \times 10^{4} 
+\end{cases}\]
+
+<p>通俗的翻译过来就是，<strong>公积金最高可贷金额 = 住房公积金余额 × 40 + 补充公积金余额 × 20</strong>。所以通过不等式反解我们可得，<strong>如果我们想最大的利用公积金，那么我们住房公积金最少需要有 12500 元的余额、补充公积金需要有 5000 块钱的余额，就满足了最高可贷金额的条件。</strong></p>
+
+<h1 id="贷款年限和贷款人年龄限制">贷款年限和贷款人年龄限制</h1>
+
+<p>首先，如果是新建商品房，也就是房龄为 0 年的房子，最长贷款年限是 30 年。然后我们说二手房，它有以下规则：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">房龄</th>
+      <th style="text-align: left">最长贷款年限</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">≤ 5 年</td>
+      <td style="text-align: left">30 年</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">6 - 19 年</td>
+      <td style="text-align: left"><strong>35 年 - 房龄（假如是 10 年房龄，则最高可贷 25 年）</strong></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">≥ 20 年</td>
+      <td style="text-align: left">15 年</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="贷款算法">贷款算法</h1>
+
+<p>同商业贷款的算法相同，公积金贷款也分成等额本金和等额本息两种算法。考虑到更多的人愿意均摊风险以及银行希望获取到更高的利息收入，所以这里我均采用<strong>等额本息来计算还款总额</strong>。</p>
+
+<h2 id="每月月供">每月月供</h2>
+
+\[月供额 = \frac{月利率 \times (1+月利率)^{还款月数}}{(1+月利率)^{还款月数} - 1} \times 贷款本金\]
+
+<p>其中月利率的计算方法：</p>
+
+\[月利率 = \frac{年利率}{12}\]
+
+<h2 id="其他约束">其他约束</h2>
+
+<p>除了我们上文提到的公积金余额对于贷款的约束，我们还要考虑房龄所带来的影响：</p>
+
+\[还款月数 = (35 - 房龄) \times 12\]
+
+<h2 id="举例计算">举例计算</h2>
+
+<p>以上就是我们要考虑的所有月数条件，那么我们来举一个例子来进行计算。假如我们现在要买一个 2010 年（房龄 10 年的二手房），总价是 400 万。使用了 35\% 的首付比例之后，我们需要<strong>贷款 260 万</strong>，最长贷款时间 25 年，也就是<strong>还款月数 300 个月</strong>。</p>
+
+<h3 id="情况一全部使用商业贷款">情况一：全部使用商业贷款</h3>
+
+<p>先要确定一下商业贷款的利息，我这里查阅了一下资料，由于上海的商贷金额往往较高，银行会对利息进行 95 折的优惠，从 4.9\% 的基准利率下调到 4.655\%。但今年国家出了 LPR 的利息策略，<strong>我们用当前 8 月份的 LPR 利息 4.65\% 来计算</strong>。首先来算月利率：</p>
+
+\[月利率 = \frac{4.65\%}{12} = 0.003875\]
+
+<p>然后我们来带入计算月供：</p>
+
+\[\begin{split}
+月供额 &amp;= \frac {0.003875 \times (1 + 0.003875)^{300}}{(1 + 0.003875)^{300} - 1} \times 2.6 \times 10^6 \\
+&amp;\approx 14673.899\ 元 
+\end{split}\]
+
+\[\begin{equation}
+\begin{split}
+月供额 &amp;= \frac {0.003875 \times (1 + 0.003875)^{300}}{(1 + 0.003875)^{300} - 1} \times 2.6 \times 10^6 \\
+&amp;\approx 14673.899\ 元 
+\end{split}
+\end{equation}\]
+
+<p>使用月供额来乘以 30 个月算出总还款：</p>
+
+\[总还款 = 30 * 14673.899 = 4402169.7\ 元\]
+
+<h3 id="情况二使用最大组合贷">情况二：使用最大组合贷</h3>
+
+<p>由于<strong>公积金贷款只能贷 120 万，所以采用 120 万是公积金贷，利息是五年以上的 3.75\%。我们用当前 8 月份的 LPR 利息 4.65\% 当做商业贷款的利息，商业贷款 140 万</strong>。</p>
+
+<p>同上述计算法相同，带入公式。</p>
+
+<p><strong>① 公积金贷款</strong></p>
+
+<p>公积金贷款的月供：</p>
+
+\[公积金月供 \approx 6169.57 元\]
+
+<p>300 个月公积金总还款：</p>
+
+\[公积金总还款 = 1850871 \ 元\]
+
+<p><strong>② 商业贷款</strong></p>
+
+<p>商业贷款月供：</p>
+
+\[商业贷款月供 \approx 7901.33\ 元\]
+
+<p>300 个月商贷总还款：</p>
+
+\[商贷总还款 = 2370399元\]
+
+<p>我们得到总还款数：</p>
+
+\[总还款 = 1850871 + 2370399 = 4221270 元\]
+
+<h3 id="结果分析">结果分析</h3>
+
+<p>从上面的计算结果来看，我们购买房龄为 10 年的二手房，加入总价为 400 万元，则选择组合贷<strong>可以节省 180900 元</strong>。</p>
+
+<h1 id="数据分析">数据分析</h1>
+
+<p>上面已经给出了等额本息的计算方法。所以接下来进行控制变量，<strong>我们让贷款年限映射到正实数区间，让其投影在 5 年与 30 年之间</strong>。保证贷款金额为 400 万。然后我们来计算纯商贷和使用组合贷的数据。蓝色线代表使用纯商贷模式，红色线代表使用组合贷模式。</p>
+
+<p><img src="https://raw.githubusercontent.com/Desgard/img/master/img/guardia640" alt="" /></p>
+
+<p>由图一可以看出，<strong>还款年份数越多，其所需还款金额越多，也就意味着利息越高</strong>。而红（组合贷）与蓝（纯商贷）的差距也越来越大。<strong>并且由右图可知，当还款年份数越多，组合贷的优势愈加明显</strong>。</p>
+
+<h1 id="总结">总结</h1>
+
+<p>接下来我们来总结一下买房贷款的最大化利益策略：</p>
+
+<ol>
+  <li>所以贷款买房尽量可以使用公积金贷款。可贷最大公积金额度需要我们以及我们的配偶具有<strong>住房公积金余额 12500 元、补充公积金余额 5000 元。</strong></li>
+  <li>根据<strong>最大贷款额原则</strong>（之后会讲到，结论是“首套房付最少的首付，用最大的杠杆贷最多的款，选择 30 年等额本息法，拒不提前还款”策略可达最大收益），<strong>当我们将还款时间设置为 30 年的上限阈值，在公积金贷款中也可以获得最大化的成本节约</strong>。当然，这就要求我们购买新房和房龄小的二手房。</li>
+</ol>
+
+<p>如果你有任何问题以及更好的建议，<strong>可以在下方评论区留言</strong>。</p>
+
+<h1 id="相关数据分析代码">相关数据分析代码</h1>
+
+<p>以下代码由我个人编写，可在 Jupyter Notebook 环境下直接运行。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""等额本息算法描述"""</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="c1"># 等额本息算法
+</span><span class="k">def</span> <span class="nf">averageCapitalPlusInterest</span><span class="p">(</span><span class="n">principal</span><span class="p">,</span> <span class="n">anualInterestRate</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+    <span class="s">"""
+    principal 表示贷款总额, anualInterestRate 表示年利率, month 表示房贷月份
+    """</span>
+    <span class="c1"># 计算每月应还款金额
+</span>    <span class="n">monthlyPayment</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">around</span><span class="p">(</span><span class="n">principal</span> <span class="o">*</span> <span class="n">averageCapitalPlusInterestRate</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">monthlyInterestRate</span><span class="p">(</span><span class="n">anualInterestRate</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># 还款总额
+</span>    <span class="n">totalPayment</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">around</span><span class="p">(</span><span class="n">monthlyPayment</span> <span class="o">*</span> <span class="n">month</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">totalPayment</span>
+
+<span class="c1"># 计算每月利率
+</span><span class="k">def</span> <span class="nf">monthlyInterestRate</span><span class="p">(</span><span class="n">anualInterestRate</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">anualInterestRate</span> <span class="o">/</span> <span class="mi">12</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+<span class="c1"># 计算比例系数
+</span><span class="k">def</span> <span class="nf">averageCapitalPlusInterestRate</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">monthlyInterestRate</span><span class="p">):</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">monthlyInterestRate</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">month</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">R</span> <span class="o">*</span> <span class="n">math</span><span class="p">.</span><span class="nb">pow</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">R</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">math</span><span class="p">.</span><span class="nb">pow</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">R</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">I</span>
+
+<span class="s">"""贷款数据模拟"""</span>
+<span class="c1"># 全商贷
+</span><span class="n">r</span> <span class="o">=</span> <span class="mf">0.0465</span>
+<span class="n">ms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span> <span class="o">*</span> <span class="n">mi</span> <span class="k">for</span> <span class="n">mi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">31</span><span class="p">)]</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mi">4000000</span>
+<span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">:</span>
+    <span class="n">res</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">averageCapitalPlusInterest</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+<span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">around</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">res</span><span class="p">]</span>
+
+<span class="c1"># 组合贷
+</span>
+<span class="n">r1</span> <span class="o">=</span> <span class="mf">0.0465</span>
+<span class="n">r2</span> <span class="o">=</span> <span class="mf">0.0375</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="mi">1200000</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">t</span> <span class="o">-</span> <span class="n">t2</span>
+
+<span class="n">rest</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">:</span>
+    <span class="n">rest</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">averageCapitalPlusInterest</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">averageCapitalPlusInterest</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">r2</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+<span class="n">rest</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">around</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rest</span><span class="p">]</span>
+
+<span class="s">"""做图"""</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="n">year</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="o">//</span> <span class="mi">12</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">rest</span><span class="p">,</span> <span class="s">'r'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Loan Time - Year"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Repayment Amount - RMB"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">detal</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)):</span>
+    <span class="n">detal</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">rest</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<span class="n">rects</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">bar</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">detal</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Loan Time - Year"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Savings - RMB"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">rect</span> <span class="ow">in</span> <span class="n">rects</span><span class="p">:</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">around</span><span class="p">(</span><span class="n">rect</span><span class="p">.</span><span class="n">get_height</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">text</span><span class="p">(</span><span class="n">rect</span><span class="p">.</span><span class="n">get_x</span><span class="p">()</span> <span class="o">+</span> <span class="n">rect</span><span class="p">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">height</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s">"center"</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s">"bottom"</span><span class="p">)</span>
+</code></pre></div></div>]]></content><author><name>空心菜</name><email>mail.kongxincai@gmail.com</email></author><category term="冬瓜买房笔记" /><category term="数学建模" /><summary type="html"><![CDATA[我给自己定了一个将近 700 天的计划，这就是在上海买房定居。于是开启了研究购房政策、研究小区和板块、研究购房注意事项等一系列的调研和研究。我将这些笔记归档成文章，发表在公众号与大家分享。 今天距离购房还有 675 天。 这篇文章来讨论使用公积金贷款买房的最大化省钱空间。以下讨论均针对于上海市。因为公积金贷款比商业贷款利率低了近两个点，所以公积金贷款也是购房者的首选。下面我来较为全面的记录一下公积金贷款的所有细节问题。 使用公积金贷款的条件 购买上海市具有所有权的自住住房； 申请贷款前 6 个月连续正常缴存住房公积金； 借款人家庭没有尚未还清的公积金债务； 利率数据 首先先给出公积金贷款的贷款利率（以下表内加粗为一般大家所需要关注的数据）： 贷款年限 首套房、二套房普通住宅（基准利率 - 2015.4.8 起开始执行） 二套房非普通住宅（1.1 倍利率） 五年以下（包含五年） 2.75% 3.025% 五年以上 3.25% 3.575% 最高贷款额度 这里不讨论非普通住宅。 普通住宅：按所在地一般民用住宅建筑标准来建造的作为居住用途的房屋，目前多为多层住宅与高层住宅。 非普通住宅：非普通住宅一般指宅建筑面积较大或用作商业用途的房子。 所购住房 首套房 首套房 二套房普通 二套房普通 贷款家庭 1 人贷款 ≥ 2 人贷款 1 人贷款 ≥ 2 人贷款 缴纳住房公积金最高可贷金额 50 万 100 万 50 万 100 万 缴纳补充公积金最高可贷金额 10 万 20 万 10 万 20 万 可贷金额总计 60 万 120 万 60 万 120 万 首付比列 ≤ 90 平米，不低于 20%; ＞ 90 平米不低于 30% 同左 不低于 30\% 同左 这里面我们可以发现住房公积金和补充公积金是有个上限值，但是如何出自己的可贷公积金的数值呢？其实是有如下计算公式：假如我们另当前住房公积金账户余额是，补充公积金账户余额是，则最高可贷金额有如下关系： \[\begin{cases} f(x, y)=40x+20y \\ 40x \leq 50 \times 10^{4} \\ 20y \leq 10 \times 10^{4} \end{cases}\] 通俗的翻译过来就是，公积金最高可贷金额 = 住房公积金余额 × 40 + 补充公积金余额 × 20。所以通过不等式反解我们可得，如果我们想最大的利用公积金，那么我们住房公积金最少需要有 12500 元的余额、补充公积金需要有 5000 块钱的余额，就满足了最高可贷金额的条件。 贷款年限和贷款人年龄限制 首先，如果是新建商品房，也就是房龄为 0 年的房子，最长贷款年限是 30 年。然后我们说二手房，它有以下规则： 房龄 最长贷款年限 ≤ 5 年 30 年 6 - 19 年 35 年 - 房龄（假如是 10 年房龄，则最高可贷 25 年） ≥ 20 年 15 年 贷款算法 同商业贷款的算法相同，公积金贷款也分成等额本金和等额本息两种算法。考虑到更多的人愿意均摊风险以及银行希望获取到更高的利息收入，所以这里我均采用等额本息来计算还款总额。 每月月供 \[月供额 = \frac{月利率 \times (1+月利率)^{还款月数}}{(1+月利率)^{还款月数} - 1} \times 贷款本金\] 其中月利率的计算方法： \[月利率 = \frac{年利率}{12}\] 其他约束 除了我们上文提到的公积金余额对于贷款的约束，我们还要考虑房龄所带来的影响： \[还款月数 = (35 - 房龄) \times 12\] 举例计算 以上就是我们要考虑的所有月数条件，那么我们来举一个例子来进行计算。假如我们现在要买一个 2010 年（房龄 10 年的二手房），总价是 400 万。使用了 35\% 的首付比例之后，我们需要贷款 260 万，最长贷款时间 25 年，也就是还款月数 300 个月。 情况一：全部使用商业贷款 先要确定一下商业贷款的利息，我这里查阅了一下资料，由于上海的商贷金额往往较高，银行会对利息进行 95 折的优惠，从 4.9\% 的基准利率下调到 4.655\%。但今年国家出了 LPR 的利息策略，我们用当前 8 月份的 LPR 利息 4.65\% 来计算。首先来算月利率： \[月利率 = \frac{4.65\%}{12} = 0.003875\] 然后我们来带入计算月供： \[\begin{split} 月供额 &amp;= \frac {0.003875 \times (1 + 0.003875)^{300}}{(1 + 0.003875)^{300} - 1} \times 2.6 \times 10^6 \\ &amp;\approx 14673.899\ 元 \end{split}\] \[\begin{equation} \begin{split} 月供额 &amp;= \frac {0.003875 \times (1 + 0.003875)^{300}}{(1 + 0.003875)^{300} - 1} \times 2.6 \times 10^6 \\ &amp;\approx 14673.899\ 元 \end{split} \end{equation}\] 使用月供额来乘以 30 个月算出总还款： \[总还款 = 30 * 14673.899 = 4402169.7\ 元\] 情况二：使用最大组合贷 由于公积金贷款只能贷 120 万，所以采用 120 万是公积金贷，利息是五年以上的 3.75\%。我们用当前 8 月份的 LPR 利息 4.65\% 当做商业贷款的利息，商业贷款 140 万。 同上述计算法相同，带入公式。 ① 公积金贷款 公积金贷款的月供： \[公积金月供 \approx 6169.57 元\] 300 个月公积金总还款： \[公积金总还款 = 1850871 \ 元\] ② 商业贷款 商业贷款月供： \[商业贷款月供 \approx 7901.33\ 元\] 300 个月商贷总还款： \[商贷总还款 = 2370399元\] 我们得到总还款数： \[总还款 = 1850871 + 2370399 = 4221270 元\] 结果分析 从上面的计算结果来看，我们购买房龄为 10 年的二手房，加入总价为 400 万元，则选择组合贷可以节省 180900 元。 数据分析 上面已经给出了等额本息的计算方法。所以接下来进行控制变量，我们让贷款年限映射到正实数区间，让其投影在 5 年与 30 年之间。保证贷款金额为 400 万。然后我们来计算纯商贷和使用组合贷的数据。蓝色线代表使用纯商贷模式，红色线代表使用组合贷模式。 由图一可以看出，还款年份数越多，其所需还款金额越多，也就意味着利息越高。而红（组合贷）与蓝（纯商贷）的差距也越来越大。并且由右图可知，当还款年份数越多，组合贷的优势愈加明显。 总结 接下来我们来总结一下买房贷款的最大化利益策略： 所以贷款买房尽量可以使用公积金贷款。可贷最大公积金额度需要我们以及我们的配偶具有住房公积金余额 12500 元、补充公积金余额 5000 元。 根据最大贷款额原则（之后会讲到，结论是“首套房付最少的首付，用最大的杠杆贷最多的款，选择 30 年等额本息法，拒不提前还款”策略可达最大收益），当我们将还款时间设置为 30 年的上限阈值，在公积金贷款中也可以获得最大化的成本节约。当然，这就要求我们购买新房和房龄小的二手房。 如果你有任何问题以及更好的建议，可以在下方评论区留言。 相关数据分析代码 以下代码由我个人编写，可在 Jupyter Notebook 环境下直接运行。 """等额本息算法描述""" import numpy as np import math # 等额本息算法 def averageCapitalPlusInterest(principal, anualInterestRate, month): """ principal 表示贷款总额, anualInterestRate 表示年利率, month 表示房贷月份 """ # 计算每月应还款金额 monthlyPayment = np.around(principal * averageCapitalPlusInterestRate(month, monthlyInterestRate(anualInterestRate)), 2) # 还款总额 totalPayment = np.around(monthlyPayment * month, 2) return totalPayment # 计算每月利率 def monthlyInterestRate(anualInterestRate): s = anualInterestRate / 12 return s # 计算比例系数 def averageCapitalPlusInterestRate(month, monthlyInterestRate): R = monthlyInterestRate N = month I = R * math.pow(1 + R, N) / (math.pow(1 + R, N) - 1) return I """贷款数据模拟""" # 全商贷 r = 0.0465 ms = [12 * mi for mi in range(6, 31)] t = 4000000 res = [] for m in ms: res.append(averageCapitalPlusInterest(t, r, m)) res = [np.around(x / 10000, 2) for x in res] # 组合贷 r1 = 0.0465 r2 = 0.0375 t2 = 1200000 t1 = t - t2 rest = [] for m in ms: rest.append(averageCapitalPlusInterest(t1, r1, m) + averageCapitalPlusInterest(t2, r2, m)) rest = [np.around(x / 10000, 2) for x in rest] """做图""" import matplotlib.pyplot as plt year = [m // 12 for m in ms] plt.subplot(221) plt.plot(year, res) plt.plot(year, rest, 'r') plt.xlabel("Loan Time - Year") plt.ylabel("Repayment Amount - RMB") plt.subplot(222) detal = [] for i in range(len(res)): detal.append(res[i] - rest[i]) rects = plt.bar(year, detal) plt.xlabel("Loan Time - Year") plt.ylabel("Savings - RMB") for rect in rects: height = np.around(rect.get_height(), 1) plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height), ha="center", va="bottom")]]></summary></entry></feed>
